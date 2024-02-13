@@ -1,16 +1,21 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-/// @title EcoFundChain Token
-/// @dev This contract implements an ERC20 token for EcoFundChain.
-contract ECFToken is ERC20 {
-    /// @notice Creates and assigns the initial total supply of tokens to the contract creator's address.
-    /// @dev Calls the ERC20 constructor from OpenZeppelin to set the token's name and symbol.
-    /// @param initialSupply The initial total supply of tokens to be minted (created and assigned).
+contract ECFToken is ERC20, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
     constructor(uint256 initialSupply) ERC20("EcoFundChain", "ECF") {
-        // Mint the initial supply of tokens to the owner (the one deploying the contract)
+        // Setup roles
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender); // Correct use of _grantRole
+        _grantRole(MINTER_ROLE, msg.sender);
+
         _mint(msg.sender, initialSupply);
+    }
+
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
     }
 }
