@@ -7,23 +7,26 @@
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // Get signers
+  const [deployer, account1, account2, account3] = await hre.ethers.getSigners();
 
-  const lockedAmount = hre.ethers.parseEther("0.001");
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  /****************** CHAINLINK MOCKS ******************/
+  const ChainlinkPricesOracleMock = await hre.ethers.getContractFactory("ChainlinkPricesOracleMock");
+  let chainlinkPricesOracleMock = await ChainlinkPricesOracleMock.connect(deployer).deploy();
+  await chainlinkPricesOracleMock.waitForDeployment();
+  let chainlinkContractAddress = chainlinkPricesOracleMock.target;
+  console.log("ChainlinkPricesOracleMock déployé à l'adresse :", chainlinkContractAddress);
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  /****************** GLT TOKEN ******************/
+  const GreenLeafToken = await hre.ethers.getContractFactory("GreenLeafToken");
+  let glt = await GreenLeafToken.connect(deployer).deploy(chainlinkContractAddress);
+  await glt.waitForDeployment();
+  let gltContractAddress = glt.target;
+  console.log("GreenLeafToken déployé à l'adresse :", gltContractAddress);
 }
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
