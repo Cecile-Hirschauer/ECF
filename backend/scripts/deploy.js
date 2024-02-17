@@ -12,20 +12,22 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  /****************** CHAINLINK MOCKS ******************/
-  const ChainlinkPricesOracleMock = await hre.ethers.getContractFactory("ChainlinkPricesOracleMock");
-  let chainlinkPricesOracleMock = await ChainlinkPricesOracleMock.connect(deployer).deploy();
-  await chainlinkPricesOracleMock.waitForDeployment();
-  let chainlinkContractAddress = chainlinkPricesOracleMock.target;
-  console.log("ChainlinkPricesOracleMock déployé à l'adresse :", chainlinkContractAddress);
+  /****************** LEAF TOKEN ******************/
+  const LeafToken = await hre.ethers.getContractFactory("LeafToken");
+  const initialSupply = hre.ethers.parseEther("1000000"); // 1 000 000 LEAF
+  let leaf = await LeafToken.connect(deployer).deploy(initialSupply);
+  await leaf.waitForDeployment();
+  let leafTokenAddress = leaf.target;
+  console.log("LeafToken déployé à l'adresse :", leafTokenAddress);
 
-  /****************** GLT TOKEN ******************/
-  const GreenLeafToken = await hre.ethers.getContractFactory("GreenLeafToken");
-  let glt = await GreenLeafToken.connect(deployer).deploy(chainlinkContractAddress);
-  await glt.waitForDeployment();
-  let gltContractAddress = glt.target;
-  console.log("GreenLeafToken déployé à l'adresse :", gltContractAddress);
+  /******************* ECOGREENFUND *******************/
+  const EcoGreenFund = await  hre.ethers.getContractFactory("EcoGreenFund");
+  let ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
+  await ecoGreenFund.waitForDeployment();
+  let ecoGreenFundAddress = ecoGreenFund.target;
+  console.log("EcoGreenFund déployé à l'adresse :", ecoGreenFundAddress);
 }
+
 
 
 // We recommend this pattern to be able to use async/await everywhere

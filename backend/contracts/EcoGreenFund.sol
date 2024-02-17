@@ -1,123 +1,220 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./GreenLeafToken.sol";
-import "./interfaces/IGreenLeafToken.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract EcoGreenFund is Ownable, ReentrancyGuard {
-    IERC20 public StakingToken;
+    error CrowdFunding__WithdrawFailed();
 
-    IGreenLeafToken public greenLeafToken;
 
-    struct ProjectData {
-        address creator;
-        uint256 goal;
-        uint256 raisedAmount;
-        bool isFunded;
-        bool isActive;
+contract EcoGreenFund is  ReentrancyGuard {
+    IERC20 public leafToken;
+
+    struct CampaignInfo {
         string name;
         string description;
-        string imgURI;
+        string image;
+        address payable creator;
+        uint256 startAt;
+        uint256 endAt;
+        uint32 id;
+        uint256 targetAmount;
+        uint256 amountCollected;
+        uint256 amountWithdrawnByOwner;
+        bool claimedByOwner;
+        bool isActive;
     }
 
 
-    mapping(uint256 => ProjectData) public Projects;
+    uint256 private constant THIRTY_DAYS = 2592000; // 30 * 86400
+    uint256 public constant RATE = 100; // 100 LEAF pour 1 ETH
+
+    uint32 private campaignsCount;
+    mapping(uint256 campaignId => CampaignInfo) public campaigns;
+    mapping(address creator => CampaignInfo[] campaigns) public campaignCreatedBy;
+    mapping(uint256 => mapping(address => uint256)) public contributions;
+
+    mapping(uint256 => mapping(address => bool)) public rewardsClaimed;
 
 
-    uint256 public nextProjectId;
+    event CampaignCreated(uint256 indexed campaignId, address indexed creator, uint256 indexed targetAmount, uint256 startAt, uint256 endAt);
+    event CampaignFunded(uint256 indexed campaignId, address indexed funder, uint256 indexed amount);
+    event WithdrawSuccessful(uint256 indexed campaignId, address indexed owner, uint256 indexed amount);
+    event RefundIssued(uint256 indexed campaignId, address indexed funder, uint256 indexed amount);
+    event RewardClaimed(address indexed claimant, uint256 indexed campaignId, uint256 reward);
 
 
-    event ProjectAdded(uint256 projectId, address indexed creator, string name, uint256 goal);
-    event ProjectUpdated(uint256 projectId, address indexed creator, string name, uint256 goal);
-    event ProjectSuccessStatusChanged(uint256 projectId, bool status);
-
-
-    constructor(address _GLTAddress) Ownable(msg.sender) {
-        greenLeafToken = IGreenLeafToken(_GLTAddress);
+    constructor(address _leafToken) {
+        leafToken = IERC20(_leafToken);
     }
-    // ************* project MANAGEMENT ************* //
 
-    function _validateProjectParameters(
-        uint256 _goal,
+    modifier onlyCreator(uint256 campaignId) {
+        require(campaigns[campaignId].creator == msg.sender, "Only the campaign creator can call this function.");
+        _;
+    }
+
+    modifier onlyContributor(uint256 campaignId) {
+        require(contributions[campaignId][msg.sender] > 0, "Not a contributor");
+        _;
+    }
+
+
+    function createCampaign(
         string memory _name,
         string memory _description,
-        string memory _imgURI
-    ) internal pure {
-        require(_goal > 0, "Goal amount cannot be 0");
-        require(bytes(_name).length > 0, "Name cannot be empty");
-        require(bytes(_description).length > 0, "Description cannot be empty");
-        require(bytes(_imgURI).length > 0, "ImgURI cannot be empty");
+        uint256 _targetAmount,
+        uint256 _startAt,
+        uint256 _endAt,
+        string memory _image
+    ) external returns (uint256) {
+        require(_startAt < _endAt, "End date should be after start date");
+        require(bytes(_name).length != 0, "Name cannot be empty");
+        require(bytes(_description).length != 0, "Description cannot be empty");
+        require(bytes(_image).length != 0, "Image URL cannot be empty");
+        require(_targetAmount > 0, "Target amount should be greater than zero");
+
+        CampaignInfo storage newCampaign = campaigns[campaignsCount];
+        newCampaign.creator = payable(msg.sender);
+        newCampaign.name = _name;
+        newCampaign.description = _description;
+        newCampaign.targetAmount = _targetAmount;
+        newCampaign.amountCollected = 0;
+        newCampaign.amountWithdrawnByOwner = 0;
+        newCampaign.startAt = block.timestamp;
+        newCampaign.endAt = _endAt;
+        newCampaign.image = _image;
+        newCampaign.claimedByOwner = false;
+        newCampaign.isActive = true;
+        newCampaign.id = uint32(campaignsCount);
+
+        campaignCreatedBy[msg.sender].push(newCampaign);
+
+        emit CampaignCreated(campaignsCount, msg.sender, _targetAmount, block.timestamp, _endAt);
+        campaignsCount++;
+        return campaignsCount;
+
     }
 
-    function addProject(uint256 _goal, string calldata _name, string calldata _description, string calldata _imgURI) external {
-        _validateProjectParameters(_goal, _name, _description, _imgURI);
-
-        Projects[nextProjectId] = ProjectData({
-            creator: msg.sender,
-            goal: _goal,
-            raisedAmount: 0,
-            isFunded: false,
-            isActive: true,
-            name: _name,
-            description: _description,
-            imgURI: _imgURI
-        });
-
-        emit ProjectAdded(nextProjectId, msg.sender, _name, _goal);
-        nextProjectId++;
-    }
-
-    function updateProject(uint256 _projectId, uint256 _goal, string calldata _name, string calldata _description, string calldata _imgURI) external {
-        require(Projects[_projectId].isActive, "Project does not exist");
-        require(msg.sender == Projects[_projectId].creator || msg.sender == owner(), "Caller is not the creator or the owner");
-
-        _validateProjectParameters(_goal, _name, _description, _imgURI);
-
-        Projects[_projectId].goal = _goal;
-        Projects[_projectId].name = _name;
-        Projects[_projectId].description = _description;
-        Projects[_projectId].imgURI = _imgURI;
-
-        emit ProjectUpdated(_projectId, msg.sender, _name, _goal);
-    }
-
-    function modifyProjectSuccessStatus(uint256 _projectId, bool _status) external {
-        require(msg.sender == owner() || msg.sender == Projects[_projectId].creator, "Caller is not the creator or the owner");
-        require(Projects[_projectId].isActive, "project does not exist");
-
-        Projects[_projectId].isFunded = _status;
-
-        emit ProjectSuccessStatusChanged(_projectId, _status);
+    function getCampaignsCount() public view returns (uint256) {
+        return campaignsCount;
     }
 
 
-    function getProject(uint256 _projectId) external view returns (
-        address creator,
-        uint256 goal,
-        uint256 raisedAmount,
-        bool isFunded,
-        bool isActive,
-        string memory name,
-        string memory description,
-        string memory imgURI
-    ) {
-        require(Projects[_projectId].isActive, "Project does not exist");
-        ProjectData storage project = Projects[_projectId];
-        return (
-                project.creator,
-                project.goal,
-                raisedAmount,
-                project.isFunded,
-                project.isActive,
-                project.name,
-                project.description,
-                project.imgURI
-        );
+
+    function toggleCampaignStatus(uint256 campaignId) external onlyCreator(campaignId) {
+        CampaignInfo storage campaign = campaigns[campaignId];
+        campaign.isActive = !campaign.isActive;
     }
 
 
+    function fundCampaign(uint256 campaignId) external payable {
+        require(msg.value > 0, "Amount must be greater than zero");
+        CampaignInfo storage campaign = campaigns[campaignId];
+        require(campaigns[campaignId].claimedByOwner, "Campaign already funded");
+        require(campaign.isActive, "Campaign is not active");
+        require(block.timestamp < campaign.endAt, "Campaign is expired");
+
+        // Utilisez directement le mapping `contributions` pour mettre à jour la contribution.
+        uint256 currentContribution = contributions[campaignId][msg.sender];
+        contributions[campaignId][msg.sender] = currentContribution + msg.value;
+
+        if (currentContribution == 0) {
+            // Ici, vous pouvez augmenter `uniqueContributorsCount` si nécessaire.
+            // Notez que si vous avez besoin de suivre le nombre unique de contributeurs,
+            // vous devriez gérer cela séparément car `CampaignInfo` n'a pas ce champ maintenant.
+        }
+
+        // Mettez à jour `amountCollected` dans `CampaignInfo`.
+        campaign.amountCollected += msg.value;
+
+        emit CampaignFunded(campaignId, msg.sender, msg.value);
+    }
+
+
+
+    function withdraw(uint256 campaignId) external nonReentrant onlyCreator(campaignId) {
+        address creator = campaigns[campaignId].creator;
+        uint256 currentTime = block.timestamp;
+        uint256 campaignEndTime = campaigns[campaignId].endAt;
+
+        require(currentTime < campaignEndTime, 'Campaign is not ended');
+        require(campaigns[campaignId].claimedByOwner, 'Amount already withdrawn');
+        require(campaigns[campaignId].amountCollected == 0, 'Balance is equal to zero');
+
+        campaigns[campaignId].claimedByOwner = true;
+
+        uint256 totalAmount = campaigns[campaignId].amountCollected;
+
+        campaigns[campaignId].amountWithdrawnByOwner = totalAmount;
+        campaigns[campaignId].amountCollected = 0;
+
+        emit WithdrawSuccessful(campaignId, msg.sender, totalAmount);
+
+        (bool success,) = creator.call{value: totalAmount}("");
+        if (!success) {
+            revert CrowdFunding__WithdrawFailed();
+        }
+    }
+
+    function refund(uint256 campaignId) external nonReentrant onlyContributor(campaignId) {
+        CampaignInfo storage campaign = campaigns[campaignId];
+
+        require(block.timestamp > campaign.endAt, 'Campaign is not ended');
+        uint256 contributedAmount = contributions[campaignId][msg.sender];
+        require(contributedAmount > 0, 'No contribution found');
+
+        bool isRefundDueToFailure = campaign.amountCollected < campaign.targetAmount;
+        bool isRefundDueToSurplus = campaign.amountCollected > campaign.targetAmount && !campaign.claimedByOwner;
+
+        require(isRefundDueToFailure || isRefundDueToSurplus, 'No refund condition met');
+
+        uint256 refundAmount = contributedAmount;
+
+        contributions[campaignId][msg.sender] = 0;
+
+        (bool success,) = msg.sender.call{value: refundAmount}("");
+        require(success, "Refund failed");
+
+        if (isRefundDueToSurplus) {
+            campaign.amountCollected -= refundAmount;
+        }
+        emit RefundIssued(campaignId, msg.sender, refundAmount);
+    }
+
+    function getTotalCampaigns() external view returns (uint256) {
+        return campaignsCount;
+
+    }
+
+    function claimReward(uint256 campaignId) public nonReentrant onlyContributor(campaignId) {
+        CampaignInfo storage campaign = campaigns[campaignId];
+        require(block.timestamp > campaign.endAt, 'Campaign is not ended');
+        require(!rewardsClaimed[campaignId][msg.sender], 'Reward already claimed');
+
+        uint256 rewardAmount = calculateReward(campaignId, msg.sender);
+
+        rewardsClaimed[campaignId][msg.sender] = true;
+        require(leafToken.transfer(msg.sender, rewardAmount), 'Rewards transfer failed');
+
+        emit RewardClaimed(msg.sender, campaignId, rewardAmount);
+    }
+
+
+    function calculateReward(uint256 campaignId, address contributor) internal view returns (uint256) {
+        uint256 userContribution = contributions[campaignId][contributor];
+        uint256 rewardAmount = (userContribution * RATE) / 1 ether;
+        return rewardAmount;
+    }
+
+    // Fonction pour obtenir la contribution d'un utilisateur à une campagne spécifique
+    function getContribution(uint256 campaignId, address user) external view returns (uint256) {
+        return contributions[campaignId][user];
+    }
+
+    // Fonction pour vérifier si un utilisateur a réclamé sa récompense pour une campagne spécifique
+    function hasClaimedReward(uint256 campaignId, address user) external view returns (bool) {
+        return rewardsClaimed[campaignId][user];
+    }
+
+    receive() external payable {}
 }
