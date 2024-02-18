@@ -1,206 +1,743 @@
 const {expect} = require('chai');
 const {ethers} = require('hardhat');
 
+const dateToUNIX = (date) => {
+    return Math.round(new Date(date).getTime() / 1000).toString()
+}
+
 describe('EcoGreenFund Contract', function () {
-    let ecoGreenFund;
-    let mockGreenLeafToken;
-    let owner, addr1, addr2, addr3, addr4;
+    let leafToken, ecoGreenFund;
+    let owner, addr1, addr2, addr3;
+    let leafTokenAddress;
+    let name, description, targetAmount, startDate, endDate, image;
 
-    beforeEach(async function () {
-        [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
-
-        mockGreenLeafToken = await ethers.getContractAt('IGreenLeafToken', owner);
-
-        const EcoGreenFund = await ethers.getContractFactory('EcoGreenFund');
-        ecoGreenFund = await EcoGreenFund.deploy(mockGreenLeafToken.target);
+    before(async function () {
+        [owner, addr1, addr2, addr3] = await ethers.getSigners();
+        const LeafToken = await ethers.getContractFactory("LeafToken");
+        leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
+        leafTokenAddress = leafToken.target;
+        const EcoGreenFund = await ethers.getContractFactory("EcoGreenFund");
+        ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
     });
 
-    it('Should set the right owner', async function () {
-        expect(await ecoGreenFund.owner()).to.equal(owner.address);
+
+    describe('Deployment', function () {
+
+        it('Should set the initial values', async function () {
+            expect(await ecoGreenFund.leafToken()).to.equal(leafTokenAddress);
+        });
     });
 
-    it("Should set the initial values correctly", async function () {
-        // Assuming your contract has getter functions or public variables to access these values
-        expect(await ecoGreenFund.greenLeafToken()).to.equal(mockGreenLeafToken.target);
+    describe('Campaigns', function () {
+        let campaignsCount;
+        beforeEach(async function () {
+            [owner, addr1, addr2, addr3] = await ethers.getSigners();
+            const LeafToken = await ethers.getContractFactory("LeafToken");
+            leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
+            leafTokenAddress = leafToken.target;
+            const EcoGreenFund = await ethers.getContractFactory("EcoGreenFund");
+            ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
 
-    });
+            campaignsCount = await ecoGreenFund.getCampaignsCount();
 
-    describe('Project Registration', function () {
-        it('Should revert if no validate parameters are not passed', async function () {
-            await expect(ecoGreenFund.addProject(
-                '0',
-                'project test 1',
-                'description test 1',
-                'img uri test 1',
-            )).to.be.revertedWith('Goal amount cannot be 0');
+        })
 
-            await expect(ecoGreenFund.addProject(
-                '1000',
-                '',
-                'description test 1',
-                'img uri test 1',
-            )).to.be.revertedWith('Name cannot be empty');
-
-            await expect(ecoGreenFund.addProject(
-                '1000',
-                'project ',
-                '',
-                'img uri test 1',
-            )).to.be.revertedWith('Description cannot be empty');
-
-            await expect(ecoGreenFund.addProject(
-                '1000',
-                'project test 1',
-                'description test 1',
-                '',
-            )).to.be.revertedWith('ImgURI cannot be empty');
+        it('Should start campaigns count at 0', async function () {
+            expect(await ecoGreenFund.getCampaignsCount()).to.equal(0);
         });
 
-        it('Should add a project', async function () {
-            await ecoGreenFund.connect(addr1).addProject(
-                '1000',
-                'project test 1',
-                'description test 1',
-                'img uri test 1',
+        it('Should revert if start date is after end date', async function () {
+            name = "Test Campaign";
+            description = "This is a test campaign";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            const now = dateToUNIX('2024-01-10');
+            startDate = dateToUNIX('2024-01-09');// Assurez-vous que startDate est dans le passé pour éviter l'erreur "Start date cannot be in the future"
+            endDate = startDate - 1; // endDate avant startDate
+            image = "https://example.com/campaign.jpg";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("End date should be after start date"); // Assurez-vous que ceci correspond au message dans le contrat
+        });
+
+
+        it('Should revert if name is empty', async function () {
+            name = "";
+            description = "This is a test campaign";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30'); // Date de fin avant la date de début
+            image = "https://example.com/campaign.jpg";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Name cannot be empty");
+        });
+
+        it('Should revert if description is empty', async function () {
+            name = "Campaign test";
+            description = "";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "https://example.com/campaign.jpg";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Description cannot be empty");
+        });
+
+        it('Should revert if image URI is empty', async function () {
+            name = "Campaign test";
+            description = "Description test";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Image URL cannot be empty");
+        });
+
+        it('Should revert if target amount is 0', async function () {
+            name = "Campaign test";
+            description = "Description test";
+            targetAmount = ethers.parseEther("0");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "Image URI";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Target amount should be greater than zero");
+        })
+
+        it('Should create a campaign with good data', async function () {
+            name = "Campaign test1";
+            description = "Description test";
+            targetAmount = ethers.parseEther("10");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "Image URI";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            const campaign = await ecoGreenFund.getCampaign(0);
+            expect(campaign.name).to.equal(name);
+            expect(campaign.description).to.equal(description);
+            expect(campaign.targetAmount.toString()).to.equal(targetAmount.toString());
+            expect(campaign.startAt.toString()).to.equal(startDate.toString());
+            expect(campaign.endAt.toString()).to.equal(endDate.toString());
+            expect(campaign.image).to.equal(image);
+            expect(campaign.creator).to.equal(addr1.address);
+            expect(campaign.id.toString()).to.equal("0");
+            expect(campaign.isActive).to.equal(true);
+            expect(campaign.claimedByOwner).to.equal(false);
+        });
+
+        it('Should update campaign counters', async function () {
+            name = "Campaign test 1";
+            description = "Description test 1";
+            targetAmount = ethers.parseEther("10");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            let image = "Image URI 1";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            let newCampaignsCount = await ecoGreenFund.getCampaignsCount();
+            expect(newCampaignsCount).to.equal(1);
+
+            name = "Campaign test 2";
+            description = "Description test 2";
+            image = "Image URI 2";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            newCampaignsCount = await ecoGreenFund.getCampaignsCount();
+            expect(newCampaignsCount).to.equal(2);
+        });
+
+        it('Should emit CampaignCreated event', async function () {
+            name = "Campaign test";
+            description = "Description test";
+            targetAmount = ethers.parseEther("10");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "Image URI";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.emit(ecoGreenFund, 'CampaignCreated')
+                .withArgs(0, addr1.address, targetAmount, startDate, endDate);
+        });
+
+        it('Should revert if camapaign does not exist', async function () {
+            expect(ecoGreenFund.connect(addr1).getCampaign(0)).revertedWith("Invalid campaign id");
+        });
+
+        it('Should return the correct campaign', async function () {
+            name = "Campaign valid";
+            description = "Description valid";
+            targetAmount = ethers.parseEther("20");
+            startDate = dateToUNIX('2024-01-10');// Date de fin avant la date de début
+            image = "Image URI";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            const campaign = await ecoGreenFund.getCampaign(0);
+            expect(campaign.name).to.equal(name);
+            expect(campaign.description).to.equal(description);
+            expect(campaign.targetAmount.toString()).to.equal(targetAmount.toString());
+            expect(campaign.startAt.toString()).to.equal(startDate.toString());
+            expect(campaign.endAt.toString()).to.equal(endDate.toString());
+            expect(campaign.image).to.equal(image);
+            expect(campaign.creator).to.equal(addr1.address);
+            expect(campaign.id.toString()).to.equal("0");
+            expect(campaign.isActive).to.equal(true);
+            expect(campaign.claimedByOwner).to.equal(false);
+        });
+
+        it('Should revert if trying to toggle campaign status by non-creator', async function () {
+            // Création d'une campagne par addr1 pour garantir que la campagne existe.
+            name = "Valid Campaign";
+            description = "A valid description";
+            targetAmount = ethers.parseEther("1");
+            startDate = dateToUNIX('2024-01-10')
+            endDate = dateToUNIX('2024-02-25'); // Fin après le début
+            image = "https://example.com/image.jpg";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            await expect(ecoGreenFund.connect(addr2).toggleCampaignStatus(0))
+                .to.be.revertedWith('Only the campaign creator can call this function.');
+        });
+
+
+        it('Should toggle campaign status', async function () {
+            name = "Toggle test 1";
+            description = "Description test 1";
+            targetAmount = ethers.parseEther("10");
+            startDate = dateToUNIX('2024-01-10')
+            let endDate = dateToUNIX('2024-02-25'); // Fin après le début
+            let image = "Image URI 1";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            let campaign = await ecoGreenFund.campaigns(0);
+            expect(campaign.isActive).to.equal(true);
+
+            // Toggle the status off
+            await ecoGreenFund.connect(addr1).toggleCampaignStatus(0);
+            campaign = await ecoGreenFund.campaigns(0); // Fetch the updated state
+            expect(campaign.isActive).to.equal(false);
+
+            // Toggle the status on again
+            await ecoGreenFund.connect(addr1).toggleCampaignStatus(0);
+            campaign = await ecoGreenFund.campaigns(0); // Fetch the updated state again
+            expect(campaign.isActive).to.equal(true);
+        });
+    });
+
+    describe('Update Campaign', function () {
+        beforeEach(async function () {
+            [owner, addr1, addr2, addr3] = await ethers.getSigners();
+            const LeafToken = await ethers.getContractFactory("LeafToken");
+            leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
+            leafTokenAddress = leafToken.target;
+            const EcoGreenFund = await ethers.getContractFactory("EcoGreenFund");
+            ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
+
+            name = "Campaign name 1";
+            description = "Description 1";
+            targetAmount = ethers.parseEther("15");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-02-25'); // Fin après le début
+            image = "Image URI 1";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+        });
+
+        it('Should revert for non-existing campaign ID', async function () {
+            const invalidCampaignId = await ecoGreenFund.getCampaignsCount(); // This ID does not exist
+            await expect(ecoGreenFund.connect(addr1).checkCampaignExists(invalidCampaignId))
+                .to.be.revertedWith("Invalid campaign id");
+        });
+
+        it('Should revert if caller is not the creator', async function () {
+            await expect(ecoGreenFund.connect(addr2).updateCampaign(0, "New name", "New description", ethers.parseEther("10"), dateToUNIX('2024-01-10'), dateToUNIX('2024-02-25'), "New image"))
+                .to.be.revertedWith("Only the campaign creator can call this function.");
+        });
+
+        it('Should revert if start date is after end date', async function () {
+            name = "Test Campaign";
+            description = "This is a test campaign";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            const now = dateToUNIX('2024-01-10');
+            startDate = dateToUNIX('2024-01-09');// Assurez-vous que startDate est dans le passé pour éviter l'erreur "Start date cannot be in the future"
+            endDate = startDate - 1; // endDate avant startDate
+            image = "https://example.com/campaign.jpg";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("End date should be after start date"); // Assurez-vous que ceci correspond au message dans le contrat
+        });
+
+
+        it('Should revert if name is empty', async function () {
+            name = "";
+            description = "This is a test campaign";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30'); // Date de fin avant la date de début
+            image = "https://example.com/campaign.jpg";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Name cannot be empty");
+        });
+
+        it('Should revert if description is empty', async function () {
+            name = "Campaign test";
+            description = "";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "https://example.com/campaign.jpg";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Description cannot be empty");
+        });
+
+        it('Should revert if image URI is empty', async function () {
+            name = "Campaign test";
+            description = "Description test";
+            targetAmount = ethers.parseEther("10"); // 10 ETH
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Image URL cannot be empty");
+        });
+
+        it('Should revert if target amount is 0', async function () {
+            name = "Campaign test";
+            description = "Description test";
+            targetAmount = ethers.parseEther("0");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-30') // Date de fin avant la date de début
+            image = "Image URI";
+
+            await expect(ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image))
+                .to.be.revertedWith("Target amount should be greater than zero");
+        });
+
+        it('Should update the campaign', async function () {
+            const newStartDate = dateToUNIX('2024-01-15');
+            const newEndDate = dateToUNIX('2024-03-01');
+            const newName = "New name";
+            const newDescription = "New description";
+            const newTargetAmount = ethers.parseEther("20");
+            const newImage = "New image";
+
+            await ecoGreenFund.connect(addr1).updateCampaign(0, newName, newDescription, newTargetAmount, newStartDate, newEndDate, newImage);
+
+            const campaign = await ecoGreenFund.getCampaign(0);
+            expect(campaign.name).to.equal(newName);
+            expect(campaign.description).to.equal(newDescription);
+            expect(campaign.targetAmount.toString()).to.equal(newTargetAmount.toString());
+            expect(campaign.startAt.toString()).to.equal(newStartDate.toString());
+            expect(campaign.endAt.toString()).to.equal(newEndDate.toString());
+            expect(campaign.image).to.equal(newImage);
+        });
+
+        it('Should emit CampaignUpdated event', async function () {
+            const newStartDate = dateToUNIX('2024-01-15');
+            const newEndDate = dateToUNIX('2024-03-01');
+            const newName = "New name";
+            const newDescription = "New description";
+            const newTargetAmount = ethers.parseEther("20");
+            const newImage = "New image";
+
+            await expect(ecoGreenFund.connect(addr1).updateCampaign(0, newName, newDescription, newTargetAmount, newStartDate, newEndDate, newImage))
+                .to.emit(ecoGreenFund, 'CampaignUpdated')
+                .withArgs(0, addr1.address, newTargetAmount, newStartDate, newEndDate);
+        });
+
+    });
+
+
+    describe('Contributions', function () {
+        beforeEach(async function () {
+            [owner, addr1, addr2, addr3] = await ethers.getSigners();
+            const LeafToken = await ethers.getContractFactory("LeafToken");
+            leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
+            leafTokenAddress = leafToken.target;
+            const EcoGreenFund = await ethers.getContractFactory("EcoGreenFund");
+            ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
+
+            name = "Campaign test 1";
+            description = "Description test 1";
+            targetAmount = ethers.parseEther("20");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 1";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            name = "Campaign test 2";
+            description = "Description test 2";
+            targetAmount = ethers.parseEther("1");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 2";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            name = "Campaign test 3";
+            description = "Description test 3";
+            targetAmount = ethers.parseEther("10");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 3";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+        });
+
+        it('Should revert if amount is 0', async function () {
+            await expect(ecoGreenFund.connect(addr2).fundCampaign(0, {value: 0}))
+                .to.be.revertedWith("Amount must be greater than zero");
+        });
+
+        it('Should revert if campaign is not active', async function () {
+
+            await ecoGreenFund.connect(addr1).toggleCampaignStatus(0);
+            await expect(ecoGreenFund.connect(addr2).fundCampaign(0, {value: ethers.parseEther("1")}))
+                .to.be.revertedWith("Campaign is not active");
+        });
+
+        it('Should revert if campaign is expired', async function () {
+            name = "Campaign expired";
+            description = "Description expired";
+            targetAmount = ethers.parseEther("5");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-01-15'); // Fin après le début
+            image = "Image URI expired";
+
+            await ecoGreenFund.connect(addr1).updateCampaign(0, name, description, targetAmount, startDate, endDate, image);
+
+            await expect(ecoGreenFund.connect(addr2).fundCampaign(0, {value: ethers.parseEther("1")}))
+                .to.be.revertedWith("Campaign is expired");
+
+        });
+
+        it('Should revert if campaign is funded', async function () {
+            await ecoGreenFund.connect(addr2).fundCampaign(0, {value: ethers.parseEther("10")});
+            await expect(ecoGreenFund.connect(addr2).fundCampaign(1, {value: ethers.parseEther("10")}))
+                .to.be.revertedWith("Campaign already funded");
+
+        });
+
+        it('Should emit CampaignFunded event', async function () {
+            await expect(ecoGreenFund.connect(addr3).fundCampaign(2, {value: ethers.parseEther("1")}))
+                .to.emit(ecoGreenFund, 'CampaignFunded')
+                .withArgs(2, addr3.address, ethers.parseEther("1"));
+        });
+
+        it('Should fail to refund if the campaign has not ended', async function () {
+            await ecoGreenFund.connect(addr1).createCampaign(
+                "Failed Campaign",
+                "Description for a campaign that will fail",
+                ethers.parseEther("15"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-28'),
+                "https://example.com/image.jpg"
+            );
+            await ecoGreenFund.connect(addr2).fundCampaign(3, {value: ethers.parseEther("1")});
+
+            await expect(ecoGreenFund.connect(addr2).refund(3))
+                .to.be.revertedWith('Campaign is not ended');
+        });
+
+        it('Should fail to refund if the caller did not contribute', async function () {
+            await expect(ecoGreenFund.connect(addr2).refund(0))
+                .to.be.revertedWith("Not a contributor");
+        });
+
+        it('Should allow refund for a failed campaign', async function () {
+
+            // Step 1: Create a campaign
+            await ecoGreenFund.connect(addr1).createCampaign(
+                "Failed Campaign",
+                "Description for a campaign that will fail",
+                ethers.parseEther("15"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-28'),
+                "https://example.com/image.jpg"
+            );
+            // Step 2: Contribute to the campaign
+            const contributionAmount = ethers.parseEther("10");
+            await ecoGreenFund.connect(addr2).fundCampaign(3, {value: contributionAmount});
+
+            // Step 3: updateCampaign to ensure the campaign has ended
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                3,
+                "Failed Campaign",
+                "Description for a campaign that will fail",
+                ethers.parseEther("15"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-10'),
+                "https://example.com/image.jpg"
             );
 
-            const project = await ecoGreenFund.Projects(0);
-            expect(project.goal).to.equal('1000');
-            expect(project.name).to.equal('project test 1');
-            expect(project.description).to.equal('description test 1');
-            expect(project.imgURI).to.equal('img uri test 1');
-            expect(project.raisedAmount).to.equal('0');
-            expect(project.creator).to.equal(addr1.address);
+            // Attempt to refund from the campaign
+            // Here, we directly check for the transaction to succeed rather than balance changes
+            // due to the simplified nature of this example
+            await expect(ecoGreenFund.connect(addr2).refund(3))
+                .to.emit(ecoGreenFund, 'RefundIssued')
+                .withArgs(3, addr2.address, contributionAmount);
         });
-
-        it('Should emit ProjectAdded event', async function () {
-            await expect(ecoGreenFund.connect(addr1).addProject(
-                '1000',
-                'project test 1',
-                'description test 1',
-                'img uri test 1',
-            )).to.emit(ecoGreenFund, 'ProjectAdded')
-                .withArgs(
-                    0,
-                    addr1.address,
-                    'project test 1',
-                   '1000'
-                );
-        });
-
-        describe('Get and update project', function () {
-            beforeEach(async function () {
-                await ecoGreenFund.connect(addr1).addProject(
-                    '1000',
-                    'project test 1',
-                    'description test 1',
-                    'img uri test 1',
-                );
-            });
-
-            it('Should revert if project does not exist', async function () {
-                await expect(ecoGreenFund.connect(addr1).getProject(1)).to.be.revertedWith('Project does not exist');
-            })
-
-            it('Should revert if is not the creator of project or the owner', async function () {
-                // L'ID du projet est probablement 0 car c'est le premier projet ajouté.
-                const projectId = 0;
-
-                // addr2 essaie de mettre à jour le projet que addr1 a créé.
-                await expect(ecoGreenFund.connect(addr2).updateProject(
-                    projectId,
-                    '2000', // Nouveau montant de l'objectif, par exemple
-                    'project test 1 updated',
-                    'description test 1 updated',
-                    'img uri test 1 updated',
-                )).to.be.revertedWith('Caller is not the creator or the owner');
-            });
-
-            it('should update a project if is the creator', async function () {
-                const projectId = 0;
-                await ecoGreenFund.connect(addr1).updateProject(
-                    projectId,
-                    '2000', // Nouveau montant de l'objectif
-                    'project test 1 updated',
-                    'description test 1 updated',
-                    'img uri test 1 updated',
-                )
-
-                // Vérifier que le projet a été mis à jour
-                const project = await ecoGreenFund.getProject(projectId);
-                expect(project.goal).to.equal('2000');
-                expect(project.name).to.equal('project test 1 updated');
-                expect(project.description).to.equal('description test 1 updated');
-                expect(project.imgURI).to.equal('img uri test 1 updated');
-            });
-
-            it('should update a project if is the owner', async function () {
-                const projectId = 0;
-                await ecoGreenFund.connect(owner).updateProject(
-                    projectId,
-                    '3000', // Nouveau montant de l'objectif
-                    'project test 1 owner update',
-                    'description test 1 owner update',
-                    'img uri test 1 owner update',
-                );
-
-                // Vérifier que le projet a été mis à jour
-                const project = await ecoGreenFund.getProject(projectId);
-                expect(project.goal).to.equal('3000');
-                expect(project.name).to.equal('project test 1 owner update');
-                expect(project.description).to.equal('description test 1 owner update');
-                expect(project.imgURI).to.equal('img uri test 1 owner update');
-            });
-
-            it('Should emit ProjectUpdated event', async function () {
-                const projectId = 0;
-                await expect(ecoGreenFund.connect(addr1).updateProject(
-                    projectId,
-                    '2000', // Nouveau montant de l'objectif
-                    'project test 1 updated',
-                    'description test 1 updated',
-                    'img uri test 1 updated',
-                )).to.emit(ecoGreenFund, 'ProjectUpdated')
-                    .withArgs(
-                        projectId,
-                        addr1.address,
-                        'project test 1 updated',
-                        '2000'
-                    );
-            });
-
-            it('Should not modify project success status if not owner or creator of project', async function () {
-                const projectId = 0;
-                await expect(ecoGreenFund.connect(addr2).modifyProjectSuccessStatus(projectId, true))
-                    .to.be.revertedWith('Caller is not the creator or the owner');
-            })
-
-            it('Should modify project success status if is creator', async function () {
-                const projectId = 0;
-                await ecoGreenFund.connect(addr1).modifyProjectSuccessStatus(projectId, true);
-                const project = await ecoGreenFund.getProject(projectId);
-                expect(project.isFunded).to.equal(true);
-            });
-
-            it('Should modify project success status if is owner', async function () {
-                const projectId = 0;
-                await ecoGreenFund.connect(owner).modifyProjectSuccessStatus(projectId, true);
-                const project = await ecoGreenFund.getProject(projectId);
-                expect(project.isFunded).to.equal(true);
-            });
-
-            it('Should emit ProjectSuccessStatusModified event', async function () {
-                const projectId = 0;
-                await expect(ecoGreenFund.connect(addr1).modifyProjectSuccessStatus(projectId, true)).to.emit(ecoGreenFund, 'ProjectSuccessStatusChanged')
-                    .withArgs(
-                        projectId,
-                        true
-                    );
-            });
-        });
-
 
 
     });
+
+
+    describe('Withdrawals', function () {
+        beforeEach(async function () {
+
+            [owner, addr1, addr2, addr3] = await ethers.getSigners();
+            const LeafToken = await ethers.getContractFactory("LeafToken");
+            leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
+            leafTokenAddress = leafToken.target;
+            const EcoGreenFund = await ethers.getContractFactory("EcoGreenFund");
+            ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
+
+            name = "Campaign test 1";
+            description = "Description test 1";
+            targetAmount = ethers.parseEther("20");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 1";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            await ecoGreenFund.connect(addr2).fundCampaign(0, {value: ethers.parseEther("15")})
+
+            name = "Campaign test 2";
+            description = "Description test 3";
+            targetAmount = ethers.parseEther("5");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 3";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+            ecoGreenFund.connect(addr2).fundCampaign(1, {value: ethers.parseEther("1")});
+
+
+        });
+
+        it('Should revert if a non-creator tries to withdraw', async function () {
+            await expect(ecoGreenFund.connect(addr3).withdraw(0)) // addr2 is not the creator
+                .to.be.revertedWith('Only the campaign creator can call this function.');
+        });
+
+
+        it('Should revert if campaign is not ended', async function () {
+            name = "Campaign ended";
+            description = "Description ended";
+            targetAmount = ethers.parseEther("5");
+            startDate = dateToUNIX('2024-01-10')
+            endDate = dateToUNIX('2024-02-28'); // Fin après le début
+            image = "Image URI ended";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+            await ecoGreenFund.connect(addr2).fundCampaign(2, {value: ethers.parseEther("2")});
+            await expect(ecoGreenFund.connect(addr1).withdraw(2))
+                .to.be.revertedWith("Campaign is not ended");
+        });
+
+
+        it('Should revert if caller is not the creator', async function () {
+            await expect(ecoGreenFund.connect(addr2).withdraw(1))
+                .to.be.revertedWith("Only the campaign creator can call this function.");
+        });
+
+        it('Should emit CampaignWithdrawn event', async function () {
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                1,
+                "Campaign ended",
+                "Description ended",
+                ethers.parseEther("1"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-08'), // Fin après le début
+                "Image URI ended"
+            );
+
+            const campaign = await ecoGreenFund.getCampaign(1);
+
+
+            const tx = await ecoGreenFund.connect(addr1).withdraw(1);
+            await expect(tx).to.emit(ecoGreenFund, 'WithdrawSuccessful')
+                .withArgs(1, addr1.address, campaign.targetAmount);
+        });
+
+        it('Should successfully withdraw funds after campaign ends', async function () {
+            // Assurez-vous que la campagne est terminée en ajustant sa date de fin
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                0, // ID de la campagne
+                name,
+                description,
+                targetAmount,
+                startDate,
+                dateToUNIX('2024-02-08'), // Mettez une date passée pour simuler la fin
+                image
+            );
+
+            const initialBalance = await ethers.provider.getBalance(addr1.address);
+
+            const tx = await ecoGreenFund.connect(addr1).withdraw(0);
+            const receipt = await tx.wait();
+            const gasUsed = receipt.gasUsed * receipt.gasPrice;
+
+            const finalBalance = await ethers.provider.getBalance(addr1.address);
+
+            const expectedBalance = initialBalance + ethers.parseEther("15") - gasUsed;
+            expect(finalBalance).to.be.closeTo(expectedBalance, ethers.parseUnits('0.01', 'ether'));
+
+            const campaign = await ecoGreenFund.getCampaign(0);
+            expect(campaign.claimedByOwner).to.equal(true);
+        });
+
+
+        it('Should revert if campaign already withdrawn', async function () {
+            await ecoGreenFund.connect(addr1).createCampaign(
+                "Campaign ended",
+                "Description ended",
+                ethers.parseEther("10"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-25'), // Fin après le début
+                "Image URI ended"
+            );
+
+            await ecoGreenFund.connect(addr2).fundCampaign(2, {value: ethers.parseEther("5")});
+
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                2,
+                "Campaign ended",
+                "Description ended",
+                ethers.parseEther("1"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-08'), // Fin après le début
+                "Image URI ended"
+            );
+
+            await ecoGreenFund.connect(addr1).withdraw(2);
+            // Second withdrawal attempt should fail
+            await expect(ecoGreenFund.connect(addr1).withdraw(2))
+                .to.be.revertedWith("Amount already withdrawn");
+        });
+
+
+    });
+
+    describe('Rewards and Claims', function () {
+        beforeEach(async function () {
+
+            [owner, addr1, addr2, addr3] = await ethers.getSigners();
+            const LeafToken = await ethers.getContractFactory("LeafToken");
+            const amount = ethers.parseEther("1000000");
+            leafToken = await LeafToken.deploy(amount);
+            leafTokenAddress = leafToken.target;
+            const EcoGreenFund = await ethers.getContractFactory("EcoGreenFund");
+            ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
+
+            name = "Campaign test 1";
+            description = "Description test 1";
+            targetAmount = ethers.parseEther("300");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 1";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            await ecoGreenFund.connect(addr2).fundCampaign(0, {value: ethers.parseEther("150")})
+
+            name = "Campaign test 2";
+            description = "Description test 3";
+            targetAmount = ethers.parseEther("100");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            image = "Image URI 3";
+
+            await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            ecoGreenFund.connect(addr2).fundCampaign(1, {value: ethers.parseEther("1")});
+
+            // Mint ou transférez suffisamment de tokens LEAF au contrat EcoGreenFund ou directement aux utilisateurs
+            const amountToMint = ethers.parseEther("100000"); // Un exemple de montant
+            await leafToken.transfer(ecoGreenFund.target, amountToMint); // Assurez-vous que le compte exécutant cette opération a suffisamment de tokens
+        });
+
+
+        it('Should calculate reward', async function () {
+            // Assuming the RATE is 100 LEAF for 1 ETH, and addr2 funded 20 ETH in total (15 ETH to campaign 0 and 5 ETH to campaign 1).
+            const expectedRewardForAddr2Campaign0 = BigInt('15000'); // Directement en LEAF tokens, sans conversion en wei
+
+            // Update the campaigns to ensure they have ended
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                0,
+                "Campaign ended",
+                "Description ended",
+                ethers.parseEther("15"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-08'), // Fin après le début
+                "Image URI ended"
+            );
+            // Claim rewards for addr2 for both campaigns
+            await ecoGreenFund.connect(addr2).claimReward(0);
+
+            // Check rewards for addr2
+            const RewardForAddr2Campaign0 = await leafToken.balanceOf(addr2.address);
+
+            // Since we're testing the reward for a single contribution in each campaign,
+            // we'll assert that the sum of expected rewards equals the actual LEAF token balance of addr2.
+            expect(RewardForAddr2Campaign0).to.equal(expectedRewardForAddr2Campaign0);
+        });
+
+        it('Should emit RewardClaimed event', async function () {
+            expect (await leafToken.balanceOf(addr2.address)).to.equal(0);
+
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                0,
+                "Campaign ended",
+                "Description ended",
+                ethers.parseEther("15"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-08'), // Fin après le début
+                "Image URI ended"
+            );
+
+            expect(await ecoGreenFund.connect(addr2).claimReward(0)).to.emit(ecoGreenFund, 'RewardClaimed');
+        });
+
+
+        it('Should revert if campaign is not ended', async function () {
+            await expect(ecoGreenFund.connect(addr2).claimReward(1))
+                .to.be.revertedWith("Campaign is not ended");
+        });
+
+        it('Should revert if reward already claimed', async function () {
+            await ecoGreenFund.connect(addr1).updateCampaign(
+                1,
+                "Campaign ended",
+                "Description ended",
+                ethers.parseEther("15"),
+                dateToUNIX('2024-01-10'),
+                dateToUNIX('2024-02-08'), // Fin après le début
+                "Image URI ended"
+            );
+
+            await ecoGreenFund.connect(addr2).claimReward(1);
+            await expect(ecoGreenFund.connect(addr2).claimReward(1))
+                .to.be.revertedWith("Reward already claimed");
+        });
+
+    });
+
 
 });

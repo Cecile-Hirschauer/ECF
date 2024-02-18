@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="implement crowdfunding">
+      <change afterPath="$PROJECT_DIR$/backend/test/unit/leafToken.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.solcover.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/EcoGreenFund.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/LeafToken.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/interfaces/IGreenLeafToken.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/hardhat.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/scripts/deploy.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/unit/EcoGreenFund.test.js" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="Solidity Contract Interface" />
+        <option value="Solidity Contract" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Cecile-Hirschauer&quot;
+  }
+}</component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="founding" />
+                    <option name="lastUsedInstant" value="1708187388" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1708089013" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="stakingCase" />
+                    <option name="lastUsedInstant" value="1708088873" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="staking" />
+                    <option name="lastUsedInstant" value="1707830776" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1707828611" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="recentNewPullRequestHead">
+      <RepoCoordinatesHolder>
+        <option name="owner" value="Cecile-Hirschauer" />
+        <option name="repository" value="ECF" />
+      </RepoCoordinatesHolder>
+    </option>
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="af36913c-3728-4dc0-90a3-cbe77e279dca" />
+        <option name="url" value="https://github.com/Cecile-Hirschauer/ECF.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/backend/package.json" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2cGgW0qwDyE6tW2SFgPm03qDp9z" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;eu.ydp.idea.ts.spec.generator.settings.spec.template&quot;: &quot;import {$ClassName$} from '$TestsRelativePath$../src/$classRelativePath$/$ClassName$';\n\ndescribe('$ClassName$', () =&gt; {\n  let $ObjName$:$ClassName$;\n\n  beforeEach(() =&gt; {\n    $ObjName$ = new $ClassName$();\n  });\n\n  describe('', () =&gt; {\n    it('', () =&gt; {\n      // given\n\n      // when\n\n      // then\n    });\n  });\n});\n&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;founding&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/cecile/AlyraCour/DApp/ECF&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/cecile/.local/share/JetBrains/Toolbox/apps/webstorm/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/contracts" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="" />
+      <created>1707743356907</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1707743356907</updated>
+      <workItem from="1707743357987" duration="24221000" />
+      <workItem from="1707819762438" duration="43043000" />
+      <workItem from="1707993848168" duration="42104000" />
+      <workItem from="1708085532581" duration="29830000" />
+      <workItem from="1708159043605" duration="25118000" />
+      <workItem from="1708188390099" duration="19000" />
+      <workItem from="1708188475823" duration="1124000" />
+      <workItem from="1708189745534" duration="31883000" />
+      <workItem from="1708264333780" duration="20956000" />
+    </task>
+    <task id="LOCAL-00001" summary="Set up project backend and frontend">
+      <option name="closed" value="true" />
+      <created>1707744149621</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1707744149621</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Start implementing and testing  crowdfunding contract">
+      <option name="closed" value="true" />
+      <created>1707748310562</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1707748310562</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Finish implementing and testing crowdfunding contract">
+      <option name="closed" value="true" />
+      <created>1707750421608</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1707750421608</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Finish implementing and testing crowdfunding contract">
+      <option name="closed" value="true" />
+      <created>1707774371506</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1707774371506</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Add ECF token contract and tests">
+      <option name="closed" value="true" />
+      <created>1707830272878</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1707830272878</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Modify main contract EcoFundChain introducing staking instead of simple contrib">
+      <option name="closed" value="true" />
+      <created>1707857484174</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1707857484174</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Add NatSpecs to ECFToken.sol">
+      <option name="closed" value="true" />
+      <created>1707857844759</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1707857844759</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Add GreenLeafToken contract and tests - Update EcoGreenFund">
+      <option name="closed" value="true" />
+      <created>1708013086290</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1708013086290</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Try to implement staking but doesn't work">
+      <option name="closed" value="true" />
+      <created>1708187437553</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1708187437553</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="false" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="founding" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Set up project backend and frontend" />
+    <MESSAGE value="Start implementing and testing  crowdfunding contract" />
+    <MESSAGE value="Finish implementing and testing crowdfunding contract" />
+    <MESSAGE value="Add ECF token contract and tests" />
+    <MESSAGE value="Modify main contract EcoFundChain introducing staking instead of simple contrib" />
+    <MESSAGE value="Add NatSpecs to ECFToken.sol" />
+    <MESSAGE value="Add GreenLeafToken contract and tests - Update EcoGreenFund" />
+    <MESSAGE value="Try to implement staking but doesn't work" />
+    <option name="LAST_COMMIT_MESSAGE" value="Try to implement staking but doesn't work" />
+  </component>
+</project>
