@@ -4,21 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="Try to implement staking but doesn't work">
-      <change afterPath="$PROJECT_DIR$/.idea/ECF.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/.solcover.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/contracts/LeafToken.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/EcoGreenFund.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/EcoGreenFund.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/GreenLeafToken.sol" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/interfaces/IGreenLeafToken.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/interfaces/IGreenLeafToken.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/mocks/ChainlinkPricesOracleMock.sol" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/scripts/deploy.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/scripts/deploy.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/unit/EcoGreenFund.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/unit/EcoGreenFund.test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/unit/GreenLeafToken.test.js" beforeDir="false" />
+    <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="implement crowdfunding">
+      <change afterPath="$PROJECT_DIR$/backend/test/unit/leafToken.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.solcover.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/EcoGreenFund.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/LeafToken.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/interfaces/IGreenLeafToken.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/hardhat.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/scripts/deploy.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/unit/EcoGreenFund.test.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +50,10 @@
             <RecentBranchesForRepo>
               <option name="branches">
                 <list>
+                  <RecentBranch>
+                    <option name="branchName" value="founding" />
+                    <option name="lastUsedInstant" value="1708187388" />
+                  </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="main" />
                     <option name="lastUsedInstant" value="1708089013" />
@@ -94,6 +96,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/backend/package.json" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
@@ -108,7 +113,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;eu.ydp.idea.ts.spec.generator.settings.spec.template&quot;: &quot;import {$ClassName$} from '$TestsRelativePath$../src/$classRelativePath$/$ClassName$';\n\ndescribe('$ClassName$', () =&gt; {\n  let $ObjName$:$ClassName$;\n\n  beforeEach(() =&gt; {\n    $ObjName$ = new $ClassName$();\n  });\n\n  describe('', () =&gt; {\n    it('', () =&gt; {\n      // given\n\n      // when\n\n      // then\n    });\n  });\n});\n&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;founding&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/cecile/AlyraCour/DApp/ECF&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -137,7 +142,11 @@
       <workItem from="1707819762438" duration="43043000" />
       <workItem from="1707993848168" duration="42104000" />
       <workItem from="1708085532581" duration="29830000" />
-      <workItem from="1708159043605" duration="22990000" />
+      <workItem from="1708159043605" duration="25118000" />
+      <workItem from="1708188390099" duration="19000" />
+      <workItem from="1708188475823" duration="1124000" />
+      <workItem from="1708189745534" duration="31883000" />
+      <workItem from="1708264333780" duration="20956000" />
     </task>
     <task id="LOCAL-00001" summary="Set up project backend and frontend">
       <option name="closed" value="true" />
@@ -203,11 +212,47 @@
       <option name="project" value="LOCAL" />
       <updated>1708013086290</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Try to implement staking but doesn't work">
+      <option name="closed" value="true" />
+      <created>1708187437553</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1708187437553</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="false" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="founding" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Set up project backend and frontend" />
