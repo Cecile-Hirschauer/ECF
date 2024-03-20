@@ -373,8 +373,8 @@ describe('EcoGreenFund Contract', function () {
             name = "Campaign test 1";
             description = "Description test 1";
             targetAmount = ethers.parseEther("20");
-            startDate = dateToUNIX('2024-01-10');
-            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            startDate = dateToUNIX('2024-03-10');
+            endDate = dateToUNIX('2024-06-01'); // Fin après le début
             image = "Image URI 1";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -392,7 +392,7 @@ describe('EcoGreenFund Contract', function () {
             description = "Description test 3";
             targetAmount = ethers.parseEther("10");
             startDate = dateToUNIX('2024-01-10');
-            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            endDate = dateToUNIX('2024-05-01'); // Fin après le début
             image = "Image URI 3";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -445,7 +445,7 @@ describe('EcoGreenFund Contract', function () {
                 "Description for a campaign that will fail",
                 ethers.parseEther("15"),
                 dateToUNIX('2024-01-10'),
-                dateToUNIX('2024-02-28'),
+                dateToUNIX('2024-05-28'),
                 "https://example.com/image.jpg"
             );
             await ecoGreenFund.connect(addr2).fundCampaign(3, {value: ethers.parseEther("1")});
@@ -467,7 +467,7 @@ describe('EcoGreenFund Contract', function () {
                 "Description for a campaign that will fail",
                 ethers.parseEther("15"),
                 dateToUNIX('2024-01-10'),
-                dateToUNIX('2024-02-28'),
+                dateToUNIX('2024-05-28'),
                 "https://example.com/image.jpg"
             );
             // Step 2: Contribute to the campaign
@@ -511,7 +511,7 @@ describe('EcoGreenFund Contract', function () {
             description = "Description test 1";
             targetAmount = ethers.parseEther("20");
             startDate = dateToUNIX('2024-01-10');
-            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            endDate = dateToUNIX('2024-05-01'); // Fin après le début
             image = "Image URI 1";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -522,7 +522,7 @@ describe('EcoGreenFund Contract', function () {
             description = "Description test 3";
             targetAmount = ethers.parseEther("5");
             startDate = dateToUNIX('2024-01-10');
-            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            endDate = dateToUNIX('2024-05-01'); // Fin après le début
             image = "Image URI 3";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -542,7 +542,7 @@ describe('EcoGreenFund Contract', function () {
             description = "Description ended";
             targetAmount = ethers.parseEther("5");
             startDate = dateToUNIX('2024-01-10')
-            endDate = dateToUNIX('2024-02-28'); // Fin après le début
+            endDate = dateToUNIX('2024-05-15'); // Fin après le début
             image = "Image URI ended";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -564,7 +564,7 @@ describe('EcoGreenFund Contract', function () {
                 "Description ended",
                 ethers.parseEther("1"),
                 dateToUNIX('2024-01-10'),
-                dateToUNIX('2024-02-08'), // Fin après le début
+                dateToUNIX('2024-03-08'), // Fin après le début
                 "Image URI ended"
             );
 
@@ -610,7 +610,7 @@ describe('EcoGreenFund Contract', function () {
                 "Description ended",
                 ethers.parseEther("10"),
                 dateToUNIX('2024-01-10'),
-                dateToUNIX('2024-02-25'), // Fin après le début
+                dateToUNIX('2024-04-25'), // Fin après le début
                 "Image URI ended"
             );
 
@@ -650,7 +650,7 @@ describe('EcoGreenFund Contract', function () {
             description = "Description test 1";
             targetAmount = ethers.parseEther("300");
             startDate = dateToUNIX('2024-01-10');
-            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            endDate = dateToUNIX('2024-05-01'); // Fin après le début
             image = "Image URI 1";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -660,8 +660,8 @@ describe('EcoGreenFund Contract', function () {
             name = "Campaign test 2";
             description = "Description test 3";
             targetAmount = ethers.parseEther("100");
-            startDate = dateToUNIX('2024-01-10');
-            endDate = dateToUNIX('2024-03-01'); // Fin après le début
+            startDate = dateToUNIX('2024-02-10');
+            endDate = dateToUNIX('2024-06-01'); // Fin après le début
             image = "Image URI 3";
 
             await ecoGreenFund.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
@@ -728,7 +728,7 @@ describe('EcoGreenFund Contract', function () {
                 "Description ended",
                 ethers.parseEther("15"),
                 dateToUNIX('2024-01-10'),
-                dateToUNIX('2024-02-08'), // Fin après le début
+                dateToUNIX('2024-03-08'), // Fin après le début
                 "Image URI ended"
             );
 
@@ -737,7 +737,34 @@ describe('EcoGreenFund Contract', function () {
                 .to.be.revertedWith("Reward already claimed");
         });
 
-    });
+        // it("Should fail to withdraw if contract has insufficient balance", async function () {
+        //     // Créez une campagne et financez-la.
+        //     const fundAmount = ethers.parseEther("1");
+        //     await ecoGreenFund.connect(addr1).fundCampaign(1, { value: fundAmount });
+        //
+        //     // Mettez à jour la campagne pour qu'elle se termine.
+        //     await ecoGreenFund.connect(addr1).updateCampaign(
+        //         1,
+        //         "Campaign ended",
+        //         "Description ended",
+        //         fundAmount,
+        //         dateToUNIX('2024-01-10'),
+        //         dateToUNIX('2024-02-08'), // Utilisez une date dans le passé pour terminer la campagne
+        //         "Image URI ended"
+        //     );
+        //
+        //     // Essayez de retirer plus d'Ether que le contrat n'en contient.
+        //     const contractBalance = await ethers.provider.getBalance(ecoGreenFund.target);
+        //     console.log('contractBalance', contractBalance.toString())
+        //     const excessiveAmount = contractBalance + ethers.parseEther("1000");
+        //     console.log('excessiveAmount', excessiveAmount.toString())
+        //     await owner.sendTransaction({ to: ecoGreenFund.target, value: excessiveAmount });
+        //
+        //     // Le retrait devrait échouer car le contrat n'a pas suffisamment d'Ether.
+        //     await expect(ecoGreenFund.connect(addr1).withdraw(1))
+        //         .to.be.revertedWithCustomError(ecoGreenFund, "CrowdFunding__WithdrawFailed");
+        // });
 
+    });
 
 });
