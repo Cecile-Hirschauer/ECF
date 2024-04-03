@@ -816,7 +816,7 @@ export const ecoGreenFundContractAbi = [
                         "type": "bool"
                     }
                 ],
-                "internalType": "struct EcoGreenFund.Campaign",
+                "internalType": "struct Crowdfunding.sol.sol.Campaign",
                 "name": "",
                 "type": "tuple"
             }

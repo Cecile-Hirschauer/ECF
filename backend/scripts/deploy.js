@@ -21,11 +21,11 @@ async function main() {
   console.log("LeafToken déployé à l'adresse :", leafTokenAddress);
 
   /******************* ECOGREENFUND *******************/
-  const EcoGreenFund = await  hre.ethers.getContractFactory("EcoGreenFund");
+  const EcoGreenFund = await  hre.ethers.getContractFactory("Crowdfunding.sol");
   let ecoGreenFund = await EcoGreenFund.deploy(leafTokenAddress);
   await ecoGreenFund.waitForDeployment();
   let ecoGreenFundAddress = ecoGreenFund.target;
-  console.log("EcoGreenFund déployé à l'adresse :", ecoGreenFundAddress);
+  console.log("Crowdfunding.sol déployé à l'adresse :", ecoGreenFundAddress);
 }
 
 

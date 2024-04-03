@@ -11,7 +11,7 @@ error CrowdFunding__WithdrawFailed();
 /// @notice This contract allows users to create, fund, and manage campaigns for environmental causes
 /// @dev Extends OpenZeppelin's ReentrancyGuard for protection against re-entrancy attacks
 
-contract EcoGreenFund is ReentrancyGuard {
+contract Crowdfunding is ReentrancyGuard {
     IERC20 public leafToken;
 
     /// @notice Structure to store campaign details

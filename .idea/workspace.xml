@@ -5,18 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="implement crowdfunding">
-      <change afterPath="$PROJECT_DIR$/backend/test/unit/leafToken.test.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/contracts/interfaces/ICrowfunding.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.solcover.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/EcoGreenFund.sol" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/LeafToken.sol" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/interfaces/IGreenLeafToken.sol" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/hardhat.config.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/scripts/deploy.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test/unit/EcoGreenFund.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/yarn-error.log" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +18,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="JavaScript File" />
-        <option value="Solidity Contract Interface" />
         <option value="Solidity Contract" />
+        <option value="Solidity Contract Interface" />
       </list>
     </option>
   </component>
@@ -98,33 +89,36 @@
   </component>
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/backend/package.json" />
+    <dismissed value="$PROJECT_DIR$/frontend/package.json" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
   <component name="ProjectId" id="2cGgW0qwDyE6tW2SFgPm03qDp9z" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;eu.ydp.idea.ts.spec.generator.settings.spec.template&quot;: &quot;import {$ClassName$} from '$TestsRelativePath$../src/$classRelativePath$/$ClassName$';\n\ndescribe('$ClassName$', () =&gt; {\n  let $ObjName$:$ClassName$;\n\n  beforeEach(() =&gt; {\n    $ObjName$ = new $ClassName$();\n  });\n\n  describe('', () =&gt; {\n    it('', () =&gt; {\n      // given\n\n      // when\n\n      // then\n    });\n  });\n});\n&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;founding&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/cecile/AlyraCour/DApp/ECF&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/cecile/.local/share/JetBrains/Toolbox/apps/webstorm/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "eu.ydp.idea.ts.spec.generator.settings.spec.template": "import {$ClassName$} from '$TestsRelativePath$../src/$classRelativePath$/$ClassName$';\n\ndescribe('$ClassName$', () => {\n  let $ObjName$:$ClassName$;\n\n  beforeEach(() => {\n    $ObjName$ = new $ClassName$();\n  });\n\n  describe('', () => {\n    it('', () => {\n      // given\n\n      // when\n\n      // then\n    });\n  });\n});\n",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/cecile/AlyraCour/DApp/ECF",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "terminal",
+    "ts.external.directory.path": "/home/cecile/.local/share/JetBrains/Toolbox/apps/webstorm/plugins/javascript-impl/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/backend/contracts" />
@@ -147,6 +141,7 @@
       <workItem from="1708188475823" duration="1124000" />
       <workItem from="1708189745534" duration="31883000" />
       <workItem from="1708264333780" duration="20956000" />
+      <workItem from="1712134966177" duration="1047000" />
     </task>
     <task id="LOCAL-00001" summary="Set up project backend and frontend">
       <option name="closed" value="true" />
