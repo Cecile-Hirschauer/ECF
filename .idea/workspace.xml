@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="implement crowdfunding">
-      <change afterPath="$PROJECT_DIR$/backend/contracts/interfaces/ICrowfunding.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/yarn-error.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/Crowdfunding.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/Crowdfunding.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/Staking.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/Staking.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/contracts/interfaces/ICrowfunding.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/interfaces/ICrowdfunding.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +142,7 @@
       <workItem from="1708188475823" duration="1124000" />
       <workItem from="1708189745534" duration="31883000" />
       <workItem from="1708264333780" duration="20956000" />
-      <workItem from="1712134966177" duration="1047000" />
+      <workItem from="1712134966177" duration="4062000" />
     </task>
     <task id="LOCAL-00001" summary="Set up project backend and frontend">
       <option name="closed" value="true" />
@@ -215,7 +216,15 @@
       <option name="project" value="LOCAL" />
       <updated>1708187437553</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="implement crowdfunding">
+      <option name="closed" value="true" />
+      <created>1712136867326</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1712136867326</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -258,6 +267,7 @@
     <MESSAGE value="Add NatSpecs to ECFToken.sol" />
     <MESSAGE value="Add GreenLeafToken contract and tests - Update EcoGreenFund" />
     <MESSAGE value="Try to implement staking but doesn't work" />
-    <option name="LAST_COMMIT_MESSAGE" value="Try to implement staking but doesn't work" />
+    <MESSAGE value="implement crowdfunding" />
+    <option name="LAST_COMMIT_MESSAGE" value="implement crowdfunding" />
   </component>
 </project>

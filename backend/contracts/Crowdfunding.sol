@@ -191,6 +191,24 @@ contract Crowdfunding is ReentrancyGuard {
         emit CampaignFunded(campaignId, msg.sender, msg.value);
     }
 
+    // Ajouter une fonction pour permettre le financement avec des tokens ERC20
+    function fundCampaignWithToken(uint256 campaignId, uint256 amount) external nonReentrant {
+        Campaign storage campaign = campaigns[campaignId];
+        require(amount > 0, "Amount must be greater than zero");
+        require(campaign.isActive, "Campaign is not active");
+        require(block.timestamp < campaign.endAt, "Campaign is expired");
+        require(campaign.amountCollected + amount <= campaign.targetAmount, "Campaign already funded");
+
+        // Transférer les tokens du contributeur au contrat de crowdfunding
+        require(leafToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+
+        contributions[campaignId][msg.sender] += amount;
+        campaign.amountCollected += amount;
+
+        emit CampaignFunded(campaignId, msg.sender, amount);
+    }
+
+
     /// @notice Allows contributors to request a refund if the campaign has failed or is overfunded
     /// @param campaignId The ID of the campaign from which to refund
     function refund(uint256 campaignId) external nonReentrant onlyContributor(campaignId) {
@@ -210,30 +228,21 @@ contract Crowdfunding is ReentrancyGuard {
         emit RefundIssued(campaignId, msg.sender, contributedAmount);
     }
 
-    /// @notice Allows the campaign creator to withdraw collected funds after the campaign ends
-    /// @dev Reverts if the campaign has not ended, if funds were already withdrawn, or if the transfer fails
-    /// @param campaignId The ID of the campaign to withdraw from
+
     function withdraw(uint256 campaignId) external nonReentrant onlyCreator(campaignId) {
-        address creator = campaigns[campaignId].creator;
-        uint256 currentTime = block.timestamp;
-        uint256 campaignEndTime = campaigns[campaignId].endAt;
+        Campaign storage campaign = campaigns[campaignId];
 
-        require(currentTime > campaignEndTime, "Campaign is not ended");
-        require(!campaigns[campaignId].claimedByOwner, "Amount already withdrawn");
-        require(campaigns[campaignId].amountCollected > 0, "Balance is equal to zero");
+        require(block.timestamp > campaign.endAt, "Campaign is not ended");
+        require(!campaign.claimedByOwner, "Amount already withdrawn");
+        require(campaign.amountCollected > 0, "Balance is equal to zero");
 
-        campaigns[campaignId].claimedByOwner = true;
+        uint256 amountToWithdraw = campaign.amountCollected;
+        campaign.amountCollected = 0;
+        campaign.claimedByOwner = true;
 
-        uint256 totalAmount = campaigns[campaignId].amountCollected;
-        campaigns[campaignId].amountWithdrawnByOwner = totalAmount;
-        campaigns[campaignId].amountCollected = 0;
+        require(leafToken.transfer(campaign.creator, amountToWithdraw), "Transfer failed");
 
-        emit WithdrawSuccessful(campaignId, msg.sender, totalAmount);
-
-        (bool success,) = creator.call{value: totalAmount}("");
-        if (!success) {
-            revert CrowdFunding__WithdrawFailed();
-        }
+        emit WithdrawSuccessful(campaignId, msg.sender, amountToWithdraw);
     }
 
     /// @notice Allows contributors to claim their rewards after the campaign ends
