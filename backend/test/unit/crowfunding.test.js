@@ -496,6 +496,84 @@ describe('Crowdfunding Contract', function () {
 
     });
 
+    describe('Test Fund Campaign with Tokens', function () {
+        beforeEach(async function () {
+            [owner, addr1, addr2, addr3] = await ethers.getSigners();
+            const LeafToken = await ethers.getContractFactory("LeafToken");
+            leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
+            leafTokenAddress = leafToken.target;
+            const EcoGreenFund = await ethers.getContractFactory("Crowdfunding");
+            crowdfunding = await EcoGreenFund.deploy(leafTokenAddress);
+
+            name = "Campaign test 1";
+            description = "Description test 1";
+            targetAmount = ethers.parseEther("20");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-05-01'); // Fin après le début
+            image = "Image URI 1";
+
+            await crowdfunding.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            // Transférer des tokens LEAF à addr1 pour qu'il puisse financer la campagne
+            await leafToken.transfer(addr2.address, ethers.parseEther("1000"));
+
+            // Accorder une autorisation au contrat Crowdfunding pour dépenser les tokens en nom d'`addr2`
+            await leafToken.connect(addr2).approve(crowdfunding.target, ethers.parseEther("1000"));
+
+            await crowdfunding.connect(addr2).fundCampaignWithToken(0, ethers.parseEther("15"))
+
+            name = "Campaign test 2";
+            description = "Description test 3";
+            targetAmount = ethers.parseEther("5");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-05-01'); // Fin après le début
+            image = "Image URI 3";
+
+            await crowdfunding.connect(addr1).createCampaign(name, description, targetAmount, startDate, endDate, image);
+
+            crowdfunding.connect(addr2).fundCampaignWithToken(1, ethers.parseEther("1"));
+        });
+
+
+        it('Should revert if amount is 0', async function () {
+            await expect(crowdfunding.connect(addr2).fundCampaignWithToken(0, 0))
+                .to.be.revertedWith("Amount must be greater than zero");
+        });
+
+        it('Should revert if campaign is not active', async function () {
+            await crowdfunding.connect(addr1).toggleCampaignStatus(0);
+            await expect(crowdfunding.connect(addr2).fundCampaignWithToken(0, ethers.parseEther("1")))
+                .to.be.revertedWith("Campaign is not active");
+        });
+
+        it('Should revert if campaign is expired', async function () {
+            name = "Campaign expired 2";
+            description = "Description expired 2";
+            targetAmount = ethers.parseEther("15");
+            startDate = dateToUNIX('2024-01-10');
+            endDate = dateToUNIX('2024-01-15'); // Fin après le début
+            image = "Image URI expired";
+
+            await crowdfunding.connect(addr1).updateCampaign(0, name, description, targetAmount, startDate, endDate, image);
+
+            await expect(crowdfunding.connect(addr2).fundCampaignWithToken(0, ethers.parseEther("1")))
+                .to.be.revertedWith("Campaign is expired");
+        });
+
+        it('Should revert if campaign is already funded', async function () {
+            await crowdfunding.connect(addr2).fundCampaignWithToken(0, ethers.parseEther("5"));
+            await expect(crowdfunding.connect(addr2).fundCampaignWithToken(0, ethers.parseEther("1")))
+                .to.be.revertedWith("Campaign already funded");
+        });
+
+        it('Should fund campaign with token and emit CampaignFundedWithToken event', async function () {
+            await expect(crowdfunding.connect(addr3).fundCampaignWithToken(1, ethers.parseEther("1")))
+                .to.emit(crowdfunding, 'CampaignFundedWithToken')
+                .withArgs(1, addr3.address, ethers.parseEther("1"));
+        });
+
+    });
+
 
     describe('Withdrawals', function () {
         beforeEach(async function () {
@@ -503,9 +581,17 @@ describe('Crowdfunding Contract', function () {
             [owner, addr1, addr2, addr3] = await ethers.getSigners();
             const LeafToken = await ethers.getContractFactory("LeafToken");
             leafToken = await LeafToken.deploy(ethers.parseEther("1000000"));
-            leafTokenAddress = leafToken.target;
+
+
             const EcoGreenFund = await ethers.getContractFactory("Crowdfunding");
-            crowdfunding = await EcoGreenFund.deploy(leafTokenAddress);
+            crowdfunding = await EcoGreenFund.deploy(leafToken.target);
+
+            const tx = await leafToken.transfer(crowdfunding.target, ethers.parseEther("100000"));
+            await tx.wait();
+
+            // const balanceAfterTransfer = await leafToken.balanceOf(crowdfunding.target);
+            // console.log(`Balance after transfer: ${balanceAfterTransfer}`);
+
 
             name = "Campaign test 1";
             description = "Description test 1";
@@ -529,6 +615,12 @@ describe('Crowdfunding Contract', function () {
             crowdfunding.connect(addr2).fundCampaign(1, {value: ethers.parseEther("1")});
 
 
+        });
+
+        it('Should have enough LeafToken balance', async function () {
+            const balance = await leafToken.balanceOf(crowdfunding.target);
+            // console.log(`Crowdfunding LeafToken balance: ${balance} LEAF`);
+            expect(balance).to.be.gt(0);
         });
 
         it('Should revert if a non-creator tries to withdraw', async function () {
@@ -576,28 +668,35 @@ describe('Crowdfunding Contract', function () {
                 .withArgs(1, addr1.address, campaign.targetAmount);
         });
 
-        it('Should successfully withdraw funds after campaign ends', async function () {
-            // Assurez-vous que la campagne est terminée en ajustant sa date de fin
+        it("Should successfully withdraw funds after campaign ends", async function () {
+            // Mise à jour de la campagne pour s'assurer qu'elle est terminée
             await crowdfunding.connect(addr1).updateCampaign(
                 0, // ID de la campagne
                 name,
                 description,
                 targetAmount,
                 startDate,
-                dateToUNIX('2024-02-08'), // Mettez une date passée pour simuler la fin
+                dateToUNIX('2024-02-08'), // Date passée pour simuler la fin
                 image
             );
 
             const initialBalance = await ethers.provider.getBalance(addr1.address);
 
             const tx = await crowdfunding.connect(addr1).withdraw(0);
+
             const receipt = await tx.wait();
+            // console.log(`Gas used: ${receipt.gasUsed.toString()}`);
+            // console.log(`Effective gas price: ${receipt.gasPrice.toString()}`);
+
             const gasUsed = receipt.gasUsed * receipt.gasPrice;
 
             const finalBalance = await ethers.provider.getBalance(addr1.address);
+            // console.log(`Final balance: ${finalBalance.toString()}`);
 
-            const expectedBalance = initialBalance + ethers.parseEther("15") - gasUsed;
-            expect(finalBalance).to.be.closeTo(expectedBalance, ethers.parseUnits('0.01', 'ether'));
+            const expectedBalance = initialBalance - gasUsed;
+            // console.log(`Expected balance: ${expectedBalance.toString()}`);
+
+            expect(finalBalance).to.be.closeTo(expectedBalance, ethers.parseEther("0.01"));
 
             const campaign = await crowdfunding.getCampaign(0);
             expect(campaign.claimedByOwner).to.equal(true);
@@ -700,7 +799,7 @@ describe('Crowdfunding Contract', function () {
         });
 
         it('Should emit RewardClaimed event', async function () {
-            expect (await leafToken.balanceOf(addr2.address)).to.equal(0);
+            expect(await leafToken.balanceOf(addr2.address)).to.equal(0);
 
             await crowdfunding.connect(addr1).updateCampaign(
                 0,

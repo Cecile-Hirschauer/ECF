@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/ICrowdfunding.sol";
 
 contract Staking is ReentrancyGuard {
-    IERC20 public stakeToken;
+    IERC20 public stakingToken;
     ICrowdfunding public crowdfunding;
 
     // Staking duration in seconds (for example, 1 month = 30 * 24 * 60 * 60 = 2592000)
@@ -21,7 +21,7 @@ contract Staking is ReentrancyGuard {
 
     struct Stake {
         uint256 amount;
-        uint256 startTIme;
+        uint256 startTime;
         uint256 duration; // in seconds
     }
 
@@ -33,11 +33,10 @@ contract Staking is ReentrancyGuard {
 
     constructor(address _stakingToken, address _crowdfundingContract) {
         stakingToken = IERC20(_stakingToken);
-        crowdfundingContract = ICrowdfunding(_crowdfundingContract);
+        crowdfunding = ICrowdfunding(_crowdfundingContract);
     }
 
-    // Fonction pour staker des tokens
-    function stakeTokens(uint256 _amount) external nonReentrant {
+    function stakeTokens(uint256 _amount, uint256 _duration) external nonReentrant {
         require(_amount > 0, "Amount must be more than 0");
         require(_duration == ONE_MONTH || _duration == THREE_MONTHS || _duration == SIX_MONTHS, "Invalid staking duration");
 
@@ -47,7 +46,6 @@ contract Staking is ReentrancyGuard {
         emit Staked(msg.sender, _amount, _duration);
     }
 
-    // Calculer les récompenses
     function calculateReward(address _staker) public view returns (uint256) {
         Stake storage stake = stakes[_staker];
         uint256 rewardRate;
@@ -68,19 +66,16 @@ contract Staking is ReentrancyGuard {
         return reward;
     }
 
-    // Réinvestir les récompenses dans une campagne de crowdfunding
     function reinvestReward(uint256 campaignId, uint256 bonusRate) external nonReentrant {
         uint256 reward = calculateReward(msg.sender);
         require(reward > 0, "No rewards available");
 
-        // Appliquer un bonus au réinvestissement
         uint256 bonus = reward * bonusRate / 100;
         uint256 totalInvestment = reward + bonus;
 
-        stakes[msg.sender].amount = 0; // Réinitialiser le stake
+        stakes[msg.sender].amount = 0;
 
-        // Réinvestir dans une campagne de crowdfunding avec bonus
-        stakingToken.approve(address(crowdfundingContract), totalInvestment);
+        stakingToken.approve(address(crowdfunding), totalInvestment);
         crowdfunding.fundCampaignWithToken(campaignId, totalInvestment);
 
         emit RewardReinvested(msg.sender, campaignId, totalInvestment);
@@ -90,16 +85,13 @@ contract Staking is ReentrancyGuard {
         uint256 reward = calculateReward(msg.sender);
         require(reward > 0, "No rewards available");
 
-        // Assurez-vous que le contrat a suffisamment de tokens pour couvrir la récompense
         uint256 contractBalance = stakingToken.balanceOf(address(this));
         require(contractBalance >= reward, "Insufficient funds in the contract");
 
-        // Réinitialiser le stake de l'utilisateur ou ajuster selon votre logique d'affaires
-        stakes[msg.sender].amount = 0; // Exemple: Réinitialiser complètement le stake
-        stakes[msg.sender].startTime = 0; // Nécessaire si on réinitialise le stake
-        stakes[msg.sender].duration = 0; // Réinitialiser aussi la durée du staking
+        stakes[msg.sender].amount = 0;
+        stakes[msg.sender].startTime = 0;
+        stakes[msg.sender].duration = 0;
 
-        // Transférer la récompense au staker
         stakingToken.transfer(msg.sender, reward);
 
         emit RewardClaimed(msg.sender, reward);

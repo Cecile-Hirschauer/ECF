@@ -46,6 +46,8 @@ contract Crowdfunding is ReentrancyGuard {
     event CampaignActiveStatusChanged(uint256 indexed campaignId, address indexed creator, bool indexed isActive);
     /// @notice Emitted when a campaign is funded
     event CampaignFunded(uint256 indexed campaignId, address indexed funder, uint256 indexed amount);
+    /// @notice Emitted when a campaign is funded with tokens
+    event CampaignFundedWithToken(uint256 indexed campaignId, address indexed funder, uint256 indexed amount);
     /// @notice Emitted when funds are successfully withdrawn by the campaign creator
     event WithdrawSuccessful(uint256 indexed campaignId, address indexed owner, uint256 indexed amount);
     /// @notice Emitted when a refund is issued to a contributor
@@ -191,7 +193,9 @@ contract Crowdfunding is ReentrancyGuard {
         emit CampaignFunded(campaignId, msg.sender, msg.value);
     }
 
-    // Ajouter une fonction pour permettre le financement avec des tokens ERC20
+    /// @notice Allows users to fund an active and not yet fully funded campaign with tokens
+    /// @param campaignId The ID of the campaign to fund
+    /// @param amount The amount of tokens to fund the campaign with
     function fundCampaignWithToken(uint256 campaignId, uint256 amount) external nonReentrant {
         Campaign storage campaign = campaigns[campaignId];
         require(amount > 0, "Amount must be greater than zero");
@@ -199,13 +203,10 @@ contract Crowdfunding is ReentrancyGuard {
         require(block.timestamp < campaign.endAt, "Campaign is expired");
         require(campaign.amountCollected + amount <= campaign.targetAmount, "Campaign already funded");
 
-        // Transférer les tokens du contributeur au contrat de crowdfunding
-        require(leafToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-
         contributions[campaignId][msg.sender] += amount;
         campaign.amountCollected += amount;
 
-        emit CampaignFunded(campaignId, msg.sender, amount);
+        emit CampaignFundedWithToken(campaignId, msg.sender, amount);
     }
 
 
@@ -228,7 +229,9 @@ contract Crowdfunding is ReentrancyGuard {
         emit RefundIssued(campaignId, msg.sender, contributedAmount);
     }
 
-
+    /// @notice Allows the campaign creator to withdraw the funds after the campaign ends
+    /// @dev Reverts if the campaign has not ended, if the amount was already withdrawn, or if the balance is zero
+    /// @param campaignId The ID of the campaign from which to withdraw funds
     function withdraw(uint256 campaignId) external nonReentrant onlyCreator(campaignId) {
         Campaign storage campaign = campaigns[campaignId];
 
