@@ -57,8 +57,6 @@ contract Staking is ReentrancyGuard, IStaking {
             rewardRate = REWARD_RATE_THREE_MONTHS;
         } else if (stake.duration == SIX_MONTHS) {
             rewardRate = REWARD_RATE_SIX_MONTHS;
-        } else {
-            return 0;
         }
 
         uint256 stakingPeriod = block.timestamp > (stake.startTime + stake.duration) ? stake.duration : block.timestamp - stake.startTime;

@@ -191,6 +191,61 @@ describe('Staking Contract', function () {
 
 
     describe('Withdraw Staking Rewards', function () {
+        beforeEach(async function () {
+            const now = await ethers.provider.getBlock('latest').then(block => block.timestamp);
+            const campaignStart = now + 300; // Start in 5 minutes
+            const campaignEnd = campaignStart + 2592000; // Duration of 30 days
+
+            await crowdfunding.createCampaign("Environmental Project", "A project to help reforest an area", ethers.parseEther("500"), campaignStart, campaignEnd, "https://example.com/image.png");
+            campaignId = 0;
+
+            // Stake initiale et accumulation des récompenses
+            const stakingAmount = ethers.parseEther("100");
+            await stakingToken.transfer(addr1.address, stakingAmount);
+            await stakingToken.connect(addr1).approve(staking.target, stakingAmount);
+            await staking.connect(addr1).stakeTokens(stakingAmount, ONE_MONTH);
+
+            // Simulate the passage of one month
+            await ethers.provider.send("evm_increaseTime", [ONE_MONTH]);
+            await ethers.provider.send("evm_mine");
+        });
+
+        it('Should revert if reward is 0', async function () {
+            await expect(staking.connect(addr2).claimReward()).to.be.revertedWith("No rewards available");
+        });
+
+
+        it('Should allow users to withdraw their staking rewards', async function () {
+            // Step 1: Calculate the expected rewards
+            const stakingAmount = ethers.parseEther("100");
+            await stakingToken.connect(owner).transfer(addr1.address, stakingAmount);
+            await stakingToken.connect(addr1).approve(staking.target, stakingAmount);
+            await staking.connect(addr1).stakeTokens(stakingAmount, ONE_MONTH);
+
+            // Step 2: Simulate the passage of one month
+            await ethers.provider.send("evm_increaseTime", [ONE_MONTH]);
+            await ethers.provider.send("evm_mine");
+
+            // Step 3: Calculating the expected rewards
+            const expectedRewards = await staking.calculateReward(addr1.address);
+
+            // Step 4: Token balance before rewards withdrawal
+            const balanceBefore = await stakingToken.balanceOf(addr1.address);
+
+            // Step 5: Withdraw the rewards
+            await staking.connect(addr1).claimReward();
+
+            // Step 6: Token balance after rewards withdrawal
+            const balanceAfter = await stakingToken.balanceOf(addr1.address);
+
+            // Step 7: Verify that the rewards were received
+            expect(balanceAfter - balanceBefore).to.equal(expectedRewards);
+
+            // Step 8: Verify that the stake amount was reset to 0
+            const stakeDetailsAfter = await staking.stakes(addr1.address);
+            expect(stakeDetailsAfter.amount).to.equal(0);
+        });
     });
+
 
 });
