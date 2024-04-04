@@ -1,8 +1,6 @@
 const {expect} = require('chai');
 const {ethers} = require('hardhat');
 
-const dateToUNIX = require('../../utils/dateToUNIX.js')
-
 describe('Staking Contract', function () {
     let leafToken, crowdfunding, staking, stakingToken;
     let owner, addr1, addr2, addr3;
