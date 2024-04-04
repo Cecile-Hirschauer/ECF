@@ -4,12 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="Update staking and crowdfunding contracts">
-      <change afterPath="$PROJECT_DIR$/backend/test/unit/staking.test.js" afterDir="false" />
+    <list default="true" id="73eb1714-3e7e-4b0b-9677-a3b32ab9f869" name="Changes" comment="Update crowdfunding contracts and tests">
+      <change afterPath="$PROJECT_DIR$/backend/contracts/interfaces/IStaking.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/contracts/mocks/MockDai.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/utils/dateToUNIX.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/contracts/Crowdfunding.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/Crowdfunding.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/contracts/Staking.sol" beforeDir="false" afterPath="$PROJECT_DIR$/backend/contracts/Staking.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/test/unit/crowfunding.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/unit/crowfunding.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test/unit/staking.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/unit/staking.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,9 +23,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="JavaScript File" />
         <option value="Solidity Contract" />
         <option value="Solidity Contract Interface" />
-        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -143,7 +147,7 @@
       <workItem from="1708188475823" duration="1124000" />
       <workItem from="1708189745534" duration="31883000" />
       <workItem from="1708264333780" duration="20956000" />
-      <workItem from="1712134966177" duration="15254000" />
+      <workItem from="1712134966177" duration="28073000" />
     </task>
     <task id="LOCAL-00001" summary="Set up project backend and frontend">
       <option name="closed" value="true" />
@@ -233,7 +237,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712139596168</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Update crowdfunding contracts and tests">
+      <option name="closed" value="true" />
+      <created>1712173804397</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1712173804397</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -278,6 +290,7 @@
     <MESSAGE value="Try to implement staking but doesn't work" />
     <MESSAGE value="implement crowdfunding" />
     <MESSAGE value="Update staking and crowdfunding contracts" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update staking and crowdfunding contracts" />
+    <MESSAGE value="Update crowdfunding contracts and tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update crowdfunding contracts and tests" />
   </component>
 </project>
