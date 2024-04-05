@@ -25,9 +25,9 @@ async function main() {
     /****************** LEAF TOKEN ******************/
     const LeafToken = await hre.ethers.getContractFactory("LeafToken");
     initialSupply = hre.ethers.parseEther("1000000"); // 1 000 000 LEAF
-    let leaf = await LeafToken.connect(owner).deploy(initialSupply);
-    await leaf.waitForDeployment();
-    let leafTokenAddress = leaf.target;
+    let leafToken = await LeafToken.connect(owner).deploy(initialSupply);
+    await leafToken.waitForDeployment();
+    let leafTokenAddress = leafToken.target;
     console.log("LeafToken deployed to:", leafTokenAddress);
 
     /******************* CROWDFUNDING *******************/
@@ -53,7 +53,7 @@ async function main() {
     console.log("Staking deployed to :", stakingAddress);
 
     /******************************************************************/
-    /******************* INTERACTIONS WITH BACKEND *******************/
+    /*********************** BACKEND INTERACTIONS *******************/
     /******************************************************************/
 
     /********************** CREATE A CAMPAIGN **********************/
@@ -90,7 +90,7 @@ async function main() {
     /********************** FUND A CAMPAIGN **********************/
     let amount;
     amount = hre.ethers.parseEther("10");
-    tx = await crowdfunding.connect(addr2).fundCampaign(campaignId, { value: amount });
+    tx = await crowdfunding.connect(addr2).fundCampaign(campaignId, {value: amount});
     await tx.wait(); // Wait for the transaction to be mined
 
     // Get the campaign details
@@ -127,10 +127,57 @@ async function main() {
     `
     );
 
-    /********************** WITHDRAW  **********************/
+    /**********************  CREATOR WITHDRAWS FUNDS COLLECTED  **********************/
+    const balanceBefore = await hre.ethers.provider.getBalance(addr1.address);
+    console.log(`Balance before withdrawal: ${hre.ethers.formatEther(balanceBefore)} ETH`);
+    try {
+        const withdrawTx = await crowdfunding.connect(addr1).withdraw(campaignId);
+        await withdrawTx.wait(); // Wait for the transaction to be mined
+
+        const balanceAfter = await hre.ethers.provider.getBalance(addr1.address);
+        console.log(`Balance after withdrawal: ${hre.ethers.formatEther(balanceAfter)} ETH`);
+
+        console.log(`Successful withdrawal for ID campaign: ${campaignId}`);
+
+        campaign = await crowdfunding.getCampaign(campaignId);
+
+        console.log(`Details of campaign ${campaign.id} after withdrawal:
+                        - Name: ${campaign.name}
+                        - Description: ${campaign.description}
+                        - Target Amount: ${hre.ethers.formatEther(campaign.targetAmount)} ETH
+                        - Amount collected: ${hre.ethers.formatEther(campaign.amountCollected)} ETH
+                        - claimed by owner: ${campaign.claimedByOwner}
+        `)
+
+    } catch (error) {
+        console.error(`Withdrawal failed : ${error.message}`);
+    }
 
 
+    /********************** ADDR2 CLAIM REWARD **********************/
+    const crowdfundingWithAddr2 = crowdfunding.connect(addr2);
 
+    // Transfer LEAF tokens to the Crowdfunding contract
+    const amountToTransfer = hre.ethers.parseEther("500000"); // Montant des tokens à transférer
+    const transferTx = await leafToken.transfer(crowdfundingAddress, amountToTransfer);
+    await transferTx.wait();
+
+    console.log(`Transferred ${hre.ethers.formatEther(amountToTransfer)} LEAF to Crowdfunding contract at ${crowdfundingAddress}`);
+
+    // Claim rewards for the campaign
+    console.log(`Attempting to claim rewards for campaign ${campaignId} by ${addr2.address}`);
+    try {
+        const claimTx = await crowdfundingWithAddr2.claimReward(campaignId);
+        await claimTx.wait();
+
+        console.log(`Rewards claimed successfully for campaign ${campaignId} by ${addr2.address}`);
+
+        // Check balance of LEAF tokens of addr2 after claiming rewards
+        const leafBalanceAfter = await leafToken.balanceOf(addr2.address);
+        console.log(`LEAF token balance of ${addr2.address} after claiming rewards: ${leafBalanceAfter} LEAF`);
+    } catch (error) {
+        console.error(`Failed to claim rewards: ${error.message}`);
+    }
 
 }
 

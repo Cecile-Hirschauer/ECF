@@ -243,7 +243,8 @@ contract Crowdfunding is ReentrancyGuard {
         campaign.amountCollected = 0;
         campaign.claimedByOwner = true;
 
-        require(leafToken.transfer(campaign.creator, amountToWithdraw), "Transfer failed");
+        (bool sent, ) = campaign.creator.call{value: amountToWithdraw}("");
+        require(sent, "Failed to send Ether");
 
         emit WithdrawSuccessful(campaignId, msg.sender, amountToWithdraw);
     }

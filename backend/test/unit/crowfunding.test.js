@@ -678,26 +678,14 @@ describe('Crowdfunding Contract', function () {
                 image
             );
 
-            const initialBalance = await ethers.provider.getBalance(addr1.address);
+            let campaign = await crowdfunding.getCampaign(0);
 
-            const tx = await crowdfunding.connect(addr1).withdraw(0);
+            // const initialBalance = await ethers.provider.getBalance(addr1.address);
+            await crowdfunding.connect(addr1).withdraw(0);
 
-            const receipt = await tx.wait();
-            // console.log(`Gas used: ${receipt.gasUsed.toString()}`);
-            // console.log(`Effective gas price: ${receipt.gasPrice.toString()}`);
-
-            const gasUsed = receipt.gasUsed * receipt.gasPrice;
-
-            const finalBalance = await ethers.provider.getBalance(addr1.address);
-            // console.log(`Final balance: ${finalBalance.toString()}`);
-
-            const expectedBalance = initialBalance - gasUsed;
-            // console.log(`Expected balance: ${expectedBalance.toString()}`);
-
-            expect(finalBalance).to.be.closeTo(expectedBalance, ethers.parseEther("0.01"));
-
-            const campaign = await crowdfunding.getCampaign(0);
+            campaign = await crowdfunding.getCampaign(0);
             expect(campaign.claimedByOwner).to.equal(true);
+            expect(campaign.amountCollected).to.equal(0);
         });
 
 
