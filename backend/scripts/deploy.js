@@ -158,7 +158,7 @@ async function main() {
     const crowdfundingWithAddr2 = crowdfunding.connect(addr2);
 
     // Transfer LEAF tokens to the Crowdfunding contract
-    const amountToTransfer = hre.ethers.parseEther("500000"); // Montant des tokens à transférer
+    const amountToTransfer = hre.ethers.parseEther("500000"); // Amount of leafToken to transfer
     const transferTx = await leafToken.transfer(crowdfundingAddress, amountToTransfer);
     await transferTx.wait();
 
@@ -200,7 +200,7 @@ async function main() {
             name: "Community Recycling Program",
             description: "Promoting recycling in communities to reduce waste.",
             targetAmount: hre.ethers.parseEther("150"), // 150 ETH
-            duration: 180, // 6 mois
+            duration: 180, // 6 months
             image: "../../frontend/public/images/recycling_program.png"
         }
     ];
