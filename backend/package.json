@@ -7,6 +7,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.1",
     "coverage": "^0.4.1",
+    "dayjs": "^1.11.10",
     "hardhat": "^2.22.2"
   },
   "devDependencies": {
