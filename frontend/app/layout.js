@@ -25,7 +25,7 @@ const { chains, publicClient } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'My RainbowKit App',
+  appName: 'EcoGreenFund',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT,
   chains
 });
