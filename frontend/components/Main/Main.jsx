@@ -5,7 +5,20 @@ import React from 'react';
 import {useEffect, useState} from "react";
 
 // Chakra UI
-import {Flex, Text, Heading, Box, Divider, useToast, Card, CardBody} from "@chakra-ui/react"
+import {
+    Flex,
+    Text,
+    Heading,
+    Box,
+    Divider,
+    useToast,
+    Card,
+    CardBody,
+    WrapItem,
+    Wrap,
+    SimpleGrid,
+    CardHeader
+} from "@chakra-ui/react"
 
 // WAGMI
 import {useAccount, useContractRead, useContractReads} from "wagmi";
@@ -13,6 +26,9 @@ import {useAccount, useContractRead, useContractReads} from "wagmi";
 import {crowdFundingAddress, crowdFundingAbi} from "@/constants";
 import NotConnected from "@/components/NotConnected/NotConnected";
 import {log} from "next/dist/server/typescript/utils";
+
+import {ethers} from "ethers";
+import CampaignCard from "@/components/CampaignCard/CampaignCard";
 
 
 const Main = () => {
@@ -54,26 +70,41 @@ const Main = () => {
     useEffect(() => {
         if (campaignsData) {
             setCampaigns(campaignsData);
-            console.log(`campaignsData: ${campaignsData}`)
             console.log('campaigns : ', campaigns)
         }
+
     }, [campaignsData, campaigns]);
 
+    // Fonction d'aide pour convertir le timestamp en date lisible
+    const formatDate = (timestamp) => {
+        // Créer un nouvel objet Date à partir du timestamp (en millisecondes)
+        const date = new Date(timestamp * 1000);
+        // Formatter la date seulement
+        return date.toLocaleDateString();
+    };
 
     return (
-        <Flex direction={'column'} alignItems={'center'} color={'black'}>
-            <Heading as={'h2'} fontSize={'2xl'} mb={'20px'}>All Campaigns</Heading>
-            <Flex grow={1} gap={'5px'} justifyContent={'space-around'}>
-                {campaigns.map((campaign, index) => (
-                    <Card key={index} bg="#4A9953" opacity={'75%'} width={'25%'} >
-                        <CardBody color="white" p={'20px'}>
-                            <Text fontSize={'xl'} fontWeight={'medium'} textAlign={'center'} >{campaign.result.name}</Text>
-                            <Text py={'5px'}>{campaign.result.description}</Text>
-                            {/* Ajoutez plus de détails de campagne ici */}
-                        </CardBody>
-                    </Card>
-                ))}
-            </Flex>
+        <Flex direction={'column'} justifyContent={'center'} color={'black'} >
+           <SimpleGrid spacing={10} columns={{ base: 1, md: 2, lg: 4 }} mt={'20px'}>
+               {
+                   campaigns.map((campaign, index) => (
+                       <CampaignCard
+                           key={index}
+                           name={campaign.result.name}
+                           description={campaign.result.description}
+                           creator={campaign.result.creator}
+                           image={campaign.result.image}
+                           targetAmount={ethers.formatEther(campaign.result.targetAmount)}
+                           amountCollected={ethers.formatEther(campaign.result.amountCollected)}
+                           startAt={formatDate(Number(campaign.result.startAt))}
+                           endAt={formatDate(Number(campaign.result.endAt))}
+
+                       />
+                   ))
+
+               }
+           </SimpleGrid>
+
         </Flex>
     );
 };

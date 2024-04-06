@@ -64,7 +64,7 @@ async function main() {
     name = "Green Project";
     description = "This project aims to plant trees in urban areas.";
     targetAmount = hre.ethers.parseEther("100");
-    image = "../../frontend/public/images/tree_in_urban_zone.png";
+    image = "/images/tree_in_urban_zone.png";
     startAt = Math.floor(Date.now() / 1000);
     endAt = startAt + 604800 * 8;
 
@@ -187,21 +187,21 @@ async function main() {
             description: "This project focuses on reducing water waste.",
             targetAmount: hre.ethers.parseEther("200"), // 200 ETH
             duration: 30, // 1 month
-            image: "../../frontend/public/images/water_conservation.png"
+            image: "/images/water_conservation.png"
         },
         {
             name: "Renewable Energy Initiative",
             description: "A project to increase the use of renewable energy sources.",
             targetAmount: hre.ethers.parseEther("300"), // 300 ETH
             duration: 90, // 3 months
-            image: "../../frontend/public/images/renewable_energy.png"
+            image: "/images/renewable_energy.png"
         },
         {
             name: "Community Recycling Program",
             description: "Promoting recycling in communities to reduce waste.",
             targetAmount: hre.ethers.parseEther("150"), // 150 ETH
             duration: 180, // 6 months
-            image: "../../frontend/public/images/recycling_program.png"
+            image: "/images/recycling_program.png"
         }
     ];
 
