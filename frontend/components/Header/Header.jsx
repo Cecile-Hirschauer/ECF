@@ -27,7 +27,17 @@ const Header = () => {
                     </Text>
                 </Box>
             </Flex>
-            <ConnectButton/>
+            <ConnectButton
+                label="Sign in"
+                accountStatus={{
+                    smallScreen: 'avatar',
+                    largeScreen: 'full',
+                }}
+                showBalance={{
+                    smallScreen: false,
+                    largeScreen: true,
+                }}
+            />
         </Flex>
     );
 }

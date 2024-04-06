@@ -1,40 +1,34 @@
-'use client'
+'use client';
 
-import { ChakraProvider } from '@chakra-ui/react';
-import { Merriweather_Sans, Lato } from 'next/font/google'
+import {ChakraProvider} from '@chakra-ui/react';
+import {Merriweather_Sans, Lato} from 'next/font/google'
 import "./globals.css";
-import { extendTheme } from '@chakra-ui/react';
+import {extendTheme} from '@chakra-ui/react';
 
 import '@rainbow-me/rainbowkit/styles.css';
 
 import {
-    getDefaultWallets, lightTheme,
+    getDefaultConfig, lightTheme,
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import {WagmiProvider} from 'wagmi';
 import {
-  hardhat, mainnet
+    hardhat,
 } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+import {
+    QueryClientProvider,
+    QueryClient,
+} from "@tanstack/react-query";
 
-const { chains, publicClient } = configureChains(
-    [hardhat, mainnet],
-    [
-      publicProvider()
-    ]
-);
 
-const { connectors } = getDefaultWallets({
-  appName: 'EcoGreenFund',
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT,
-  chains
+const config = getDefaultConfig({
+    appName: 'EcoGreenFund',
+    projectId: process.env.NEXT_PUBLIC_WALLETCONNECT,
+    chains: [hardhat],
+    ssr: true,
 });
 
-const wagmiConfig = createConfig({
-  autoConnect: false,
-  connectors,
-  publicClient
-})
+const queryClient = new QueryClient();
 
 const lato = Lato({
     subsets: ["latin"],
@@ -67,24 +61,27 @@ const theme = extendTheme({
 });
 
 
-export default function RootLayout({ children }) {
-  return (
-      <html lang="en">
-      <body className={lato.className}>
-      <ChakraProvider theme={theme}>
-          <WagmiConfig config={wagmiConfig}>
-              <RainbowKitProvider
-                  chains={chains}
-                  theme={lightTheme({
-                      accentColor: "#4A9953",
-                      accentColorForeground: "#ffffff",
-                  })}
-              >
-                  {children}
-              </RainbowKitProvider>
-          </WagmiConfig>
-      </ChakraProvider>
-      </body>
-      </html>
-  );
+export default function RootLayout({children}) {
+    return (
+        <html lang="en">
+        <body className={lato.className}>
+        <ChakraProvider theme={theme}>
+            <WagmiProvider config={config}>
+                <QueryClientProvider client={queryClient}>
+
+                    <RainbowKitProvider
+                        theme={lightTheme({
+                            accentColor: "#4A9953",
+                            accentColorForeground: "#ffffff",
+                        })}
+                    >
+                        {children}
+                    </RainbowKitProvider>
+                </QueryClientProvider>
+            </WagmiProvider>
+        </ChakraProvider>
+        </body>
+        </html>
+    );
 }
+

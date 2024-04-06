@@ -8,7 +8,7 @@ const Footer = () => {
             justifyContent="center"
             alignItems="center"
         >
-            <Text color={'#0D0D0D'} fontSize={'md'} fontWeight={'medium'} >All rights reserved &copy; EcoGreenChain {new Date().getFullYear()}</Text>
+            <Text color={'white'} fontSize={'md'} fontWeight={'medium'} > &copy; EcoGreenFund {new Date().getFullYear()}</Text>
         </Flex>
     )
 }
