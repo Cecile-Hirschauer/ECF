@@ -9,6 +9,7 @@ const Layout = ({ children }) => {
             direction="column"
             h="100vh"
             justifyContent="center"
+            my={2}
         >
             <Header />
             <Flex

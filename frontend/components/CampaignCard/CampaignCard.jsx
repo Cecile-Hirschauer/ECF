@@ -2,8 +2,9 @@
 import React from 'react';
 import {Button, ButtonGroup, Card, CardBody, CardFooter, Divider, Flex, Heading, Stack, Text} from "@chakra-ui/react";
 import Image from 'next/image';
+import ContributeButton from "@/components/ContributeButton/ContributeButton";
 
-const CampaignCard = ({name, description, creator, image, targetAmount, amountCollected, startAt, endAt}) => {
+const CampaignCard = ({campaignId, name, description, creator, image, targetAmount, amountCollected, startAt, endAt, contribute}) => {
     return (
         <Card maxW='sm'>
             <CardBody>
@@ -15,7 +16,7 @@ const CampaignCard = ({name, description, creator, image, targetAmount, amountCo
                     height={200}
                 />
                 <Stack spacing='2' fontSize='sm' mt={2}>
-                    <Heading size='md'>{name}</Heading>
+                    <Heading size='sm'>{name}</Heading>
                     <Text>
                         {description}
                     </Text>
@@ -33,9 +34,9 @@ const CampaignCard = ({name, description, creator, image, targetAmount, amountCo
                 </Stack>
             </CardBody>
             <Divider/>
-            <CardFooter>
+            <CardFooter align={'center'}>
                 <Flex justifyContent='center' alignItems={'center'}>
-                    <Button color={'white'} colorScheme={'green'}>Contribute</Button>
+                    <ContributeButton campaignId={campaignId} />
                 </Flex>
             </CardFooter>
         </Card>

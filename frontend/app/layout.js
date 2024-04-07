@@ -7,28 +7,37 @@ import {extendTheme} from '@chakra-ui/react';
 
 import '@rainbow-me/rainbowkit/styles.css';
 
+
+import '@rainbow-me/rainbowkit/styles.css';
 import {
-    getDefaultConfig, lightTheme,
+    getDefaultWallets, lightTheme,
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import {WagmiProvider} from 'wagmi';
-import {
-    hardhat,
-} from 'wagmi/chains';
-import {
-    QueryClientProvider,
-    QueryClient,
-} from "@tanstack/react-query";
+import {configureChains, createConfig, WagmiConfig} from 'wagmi';
+import {hardhat } from 'wagmi/chains';
+import {alchemyProvider} from 'wagmi/providers/alchemy';
+import {publicProvider} from 'wagmi/providers/public';
 
+const { chains, publicClient } = configureChains(
+    [hardhat],
+    [
+        alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),
+        publicProvider()
+    ]
+);
 
-const config = getDefaultConfig({
-    appName: 'EcoGreenFund',
+const { connectors } = getDefaultWallets({
+    appName: 'Voting DApp',
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT,
-    chains: [hardhat],
-    ssr: true,
+    chains
 });
 
-const queryClient = new QueryClient();
+const wagmiConfig = createConfig({
+    autoConnect: false,
+    connectors,
+    publicClient
+})
+
 
 const lato = Lato({
     subsets: ["latin"],
@@ -66,19 +75,17 @@ export default function RootLayout({children}) {
         <html lang="en">
         <body className={lato.className}>
         <ChakraProvider theme={theme}>
-            <WagmiProvider config={config}>
-                <QueryClientProvider client={queryClient}>
-
-                    <RainbowKitProvider
-                        theme={lightTheme({
+            <WagmiConfig config={wagmiConfig}>
+                <RainbowKitProvider
+                    chains={chains}
+                    theme={lightTheme({
                             accentColor: "#4A9953",
                             accentColorForeground: "#ffffff",
                         })}
-                    >
-                        {children}
-                    </RainbowKitProvider>
-                </QueryClientProvider>
-            </WagmiProvider>
+                >
+                    {children}
+                </RainbowKitProvider>
+            </WagmiConfig>
         </ChakraProvider>
         </body>
         </html>

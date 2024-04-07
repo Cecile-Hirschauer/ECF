@@ -8,8 +8,8 @@ const Header = () => {
         <Flex
             justifyContent="space-between"
             alignItems="center"
-            p={4}
-            mt={'35px'}
+            p={10}
+            mt={150}
         >
             <Flex justifyContent={"space-between"} alignItems={'center'} px={2}>
                 <Image

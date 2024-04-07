@@ -7,27 +7,18 @@ import {useEffect, useState} from "react";
 // Chakra UI
 import {
     Flex,
-    Text,
-    Heading,
-    Box,
-    Divider,
     useToast,
-    Card,
-    CardBody,
-    WrapItem,
-    Wrap,
     SimpleGrid,
-    CardHeader
 } from "@chakra-ui/react"
 
 // WAGMI
-import {useAccount, useContractRead, useContractReads} from "wagmi";
+import { useContractRead, useContractReads} from "wagmi";
 
 import {crowdFundingAddress, crowdFundingAbi} from "@/constants";
 import NotConnected from "@/components/NotConnected/NotConnected";
 import {log} from "next/dist/server/typescript/utils";
 
-import {ethers} from "ethers";
+import {formatEther, parseEther} from "viem";
 import CampaignCard from "@/components/CampaignCard/CampaignCard";
 
 
@@ -83,27 +74,28 @@ const Main = () => {
         return date.toLocaleDateString();
     };
 
+
     return (
-        <Flex direction={'column'} justifyContent={'center'} color={'black'} >
-           <SimpleGrid spacing={10} columns={{ base: 1, md: 2, lg: 4 }} mt={'20px'}>
-               {
-                   campaigns.map((campaign, index) => (
-                       <CampaignCard
-                           key={index}
-                           name={campaign.result.name}
-                           description={campaign.result.description}
-                           creator={campaign.result.creator}
-                           image={campaign.result.image}
-                           targetAmount={ethers.formatEther(campaign.result.targetAmount)}
-                           amountCollected={ethers.formatEther(campaign.result.amountCollected)}
-                           startAt={formatDate(Number(campaign.result.startAt))}
-                           endAt={formatDate(Number(campaign.result.endAt))}
+        <Flex direction={'column'} justifyContent={'center'} color={'black'}>
+            <SimpleGrid spacing={10} columns={{base: 1, md: 2, lg: 4}} mt={'20px'}>
+                {
+                    campaigns.map((campaign, index) => (
+                        <CampaignCard
+                            key={index}
+                            name={campaign.result.name}
+                            description={campaign.result.description}
+                            creator={campaign.result.creator}
+                            image={campaign.result.image}
+                            targetAmount={formatEther(campaign.result.targetAmount).toString()}
+                            amountCollected={formatEther(campaign.result.amountCollected.toString())}
+                            startAt={formatDate(Number(campaign.result.startAt))}
+                            endAt={formatDate(Number(campaign.result.endAt))}
+                            campaignId={Number(campaign.result.id)}
+                        />
+                    ))
 
-                       />
-                   ))
-
-               }
-           </SimpleGrid>
+                }
+            </SimpleGrid>
 
         </Flex>
     );
