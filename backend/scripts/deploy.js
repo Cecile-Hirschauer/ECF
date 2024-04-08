@@ -4,42 +4,42 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
-const hre = require("hardhat");
+const {ethers} = require("hardhat");
 
 
 async function main() {
     let initialSupply;
     // Get signers
-    const [owner, addr1, addr2, ...addrs] = await hre.ethers.getSigners();
+    const [deployer] = await ethers.getSigners();
 
 
-    console.log("Deploying contracts with the account:", owner.address);
+    console.log("Deploying contracts with the account:", deployer.address);
 
     /****************** LEAF TOKEN ******************/
-    const LeafToken = await hre.ethers.getContractFactory("LeafToken");
-    initialSupply = hre.ethers.parseEther("1000000"); // 1 000 000 LEAF
-    let leafToken = await LeafToken.connect(owner).deploy(initialSupply);
+    const LeafToken = await ethers.getContractFactory("LeafToken");
+    initialSupply = ethers.parseEther("1000000"); // 1 000 000 LEAF
+    let leafToken = await LeafToken.connect(deployer).deploy(initialSupply);
     await leafToken.waitForDeployment();
     let leafTokenAddress = leafToken.target;
     console.log("LeafToken deployed to:", leafTokenAddress);
 
     /******************* CROWDFUNDING *******************/
-    const Crowdfunding = await hre.ethers.getContractFactory("Crowdfunding");
+    const Crowdfunding = await ethers.getContractFactory("Crowdfunding");
     let crowdfunding = await Crowdfunding.deploy(leafTokenAddress);
     await crowdfunding.waitForDeployment();
     let crowdfundingAddress = crowdfunding.target;
     console.log("Crowdfunding deployed to :", crowdfundingAddress);
 
     /******************* MOCK DAI *******************/
-    const MockDai = await hre.ethers.getContractFactory("MockDai");
-    initialSupply = hre.ethers.parseEther("1000000"); // 1 000 000 mDAI
-    let mockDai = await MockDai.connect(owner).deploy(initialSupply);
+    const MockDai = await ethers.getContractFactory("MockDai");
+    initialSupply = ethers.parseEther("1000000"); // 1 000 000 mDAI
+    let mockDai = await MockDai.connect(deployer).deploy(initialSupply);
     await mockDai.waitForDeployment();
     let mockDaiAddress = mockDai.target;
     console.log("MockDai deployed to :", mockDaiAddress);
 
     /******************* STAKING *******************/
-    const Staking = await hre.ethers.getContractFactory("Staking");
+    const Staking = await ethers.getContractFactory("Staking");
     let staking = await Staking.deploy(mockDaiAddress, crowdfundingAddress);
     await staking.waitForDeployment();
     let stakingAddress = staking.target;
