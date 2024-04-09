@@ -54,7 +54,7 @@ describe('Staking Contract', function () {
             // Step 2: Approve the staking contract to spend the tokens
             await stakingToken.connect(addr1).approve(staking.target, amount);
 
-            // Step 3: Stake the tokens
+            // Step 3: Index the tokens
             await staking.connect(addr1).stakeTokens(amount, ONE_MONTH);
 
             // Verify the stake
@@ -152,7 +152,7 @@ describe('Staking Contract', function () {
             await crowdfunding.createCampaign("Environmental Project", "A project to help reforest an area", ethers.parseEther("500"), campaignStart, campaignEnd, "https://example.com/image.png");
             campaignId = 0;
 
-            // Stake initiale et accumulation des récompenses
+            // Index initiale et accumulation des récompenses
             const stakingAmount = ethers.parseEther("100");
             await stakingToken.transfer(addr1.address, stakingAmount);
             await stakingToken.connect(addr1).approve(staking.target, stakingAmount);
@@ -182,7 +182,7 @@ describe('Staking Contract', function () {
 
             // Ensure that the stake amount was reset to 0
             const stakeDetails = await staking.stakes(addr1.address);
-            expect(stakeDetails.amount).to.equal(0, "Stake amount was not reset after reinvestment");
+            expect(stakeDetails.amount).to.equal(0, "Index amount was not reset after reinvestment");
         });
     });
 
@@ -197,7 +197,7 @@ describe('Staking Contract', function () {
             await crowdfunding.createCampaign("Environmental Project", "A project to help reforest an area", ethers.parseEther("500"), campaignStart, campaignEnd, "https://example.com/image.png");
             campaignId = 0;
 
-            // Stake initiale et accumulation des récompenses
+            // Index initiale et accumulation des récompenses
             const stakingAmount = ethers.parseEther("100");
             await stakingToken.transfer(addr1.address, stakingAmount);
             await stakingToken.connect(addr1).approve(staking.target, stakingAmount);

@@ -2,7 +2,7 @@
 import { useAccount } from "wagmi";
 
 import Layout from "@/components/Layout/Layout";
-import Main from "@/components/Main/Main";
+import Main from "@/pages/Main/Main";
 import NotConnected from "@/components/NotConnected/NotConnected";
 
 export default function Home() {

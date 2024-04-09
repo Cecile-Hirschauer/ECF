@@ -15,17 +15,17 @@ import {
 import { useContractRead, useContractReads} from "wagmi";
 
 import {crowdFundingAddress, crowdFundingAbi} from "@/constants";
-import NotConnected from "@/components/NotConnected/NotConnected";
-import {log} from "next/dist/server/typescript/utils";
+
 
 import {formatEther, parseEther} from "viem";
 import CampaignCard from "@/components/CampaignCard/CampaignCard";
 
 
-const Main = () => {
+const FundCampaign = () => {
     const toast = useToast();
 
-    const [userRole, setUserRole] = useState('visitor');
+    const [currentComponent, setCurrentComponent] = useState('FundCampaign');
+
 
     const [campaignIds, setCampaignIds] = useState([]);
     const [campaigns, setCampaigns] = useState([]);
@@ -101,4 +101,4 @@ const Main = () => {
     );
 };
 
-export default Main;
+export default FundCampaign;
