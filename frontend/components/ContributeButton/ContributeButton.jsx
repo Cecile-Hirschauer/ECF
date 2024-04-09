@@ -37,12 +37,9 @@ const ContributeButton = ({campaignId}) => {
                 value: parseEther(amount),
                 account: address,
             })
-            console.log("request", request)
             const { hash } = await writeContract(request);
-            console.log(`Transaction hash: ${hash}`);
             await waitForTransaction({hash})
             await getEvent();
-            console.log("event in fundCampaign fn", campaignFundedEvent)
             setAmount('');
             toast({
                 title: 'Transaction sent',
@@ -70,8 +67,8 @@ const ContributeButton = ({campaignId}) => {
             toBlock: 'latest',
         })
         setCampaignFundedEvent(fundCampaignLogs.map((log) => ({
-            funder: log.account,
-            amount: log.value,
+            ...log.args,
+            event: log,
 
         })))
         console.log("event", campaignFundedEvent)

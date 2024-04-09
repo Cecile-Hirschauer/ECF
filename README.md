@@ -1,32 +1,63 @@
 # EcoGreenFund
 
-## Backend: EcoGreenFund & LeafToken Smart Contracts
+EcoGreenFund is a decentralized application (dApp) that enables users to fund environmental projects and earn rewards through staking mechanisms. The platform uses smart contracts to manage crowdfunding campaigns, staking pools, and token rewards. Users can create projects, contribute to campaigns, and stake tokens to earn rewards. The LeafToken (LEAF) is used for rewards and project funding, while the MockDai token is used for staking. The dApp is built with Solidity smart contracts, Hardhat development environment, and Next.js frontend framework.
 
-### Overview
-`EcoGreenFund` is a blockchain-based crowdfunding platform dedicated to supporting environmental projects. Leveraging the Ethereum network, it facilitates the creation, funding, and management of campaigns aimed at sustainability efforts. Contributors are rewarded with `LeafToken`, an ERC20 token, acknowledging their support towards these causes.
+## Smart Contracts
 
-`LeafToken` serves as the platform's reward mechanism, incentivizing contributions with a digital asset that represents a stake in the environmental ventures supported through `EcoGreenFund`.
+### LeafToken Contract
+- ERC20 standard token "LeafToken" (LEAF) used for rewards and project funding.
+- Initial Supply: A predefined amount of tokens minted at contract creation.
 
-### Features
-- **Campaign Management**: Users can launch and oversee crowdfunding campaigns for environmental initiatives.
-- **Ether Contributions**: Support campaigns using Ether and receive `LeafToken` rewards.
-- **Funds Withdrawal**: Campaign owners can withdraw accumulated funds post-campaign, contingent on reaching the funding target.
-- **Refunds**: Contributors can claim refunds for campaigns that fall short of their financial goals.
-- **Reward System**: Contributions are rewarded with `LeafToken`, promoting a cycle of support and recognition.
+### Crowdfunding Contract
+- Users can create and fund environmental projects.
+- Campaign management features for creators.
+- ReentrancyGuard inherited for security against reentrancy attacks.
+- Contributors can receive LeafToken rewards.
 
-### Installation
-Follow these steps to set up and run `EcoGreenFund` and `LeafToken` on your local development environment.
+### Staking Contract
+- Users stake mockDai tokens to earn rewards over 1, 3, or 6 months.
+- Reward reinvestment and direct claim options available.
 
-#### Prerequisites
-Ensure you have the following installed:
-- Node.js and npm (https://nodejs.org/)
-- Yarn (https://yarnpkg.com/)
-- Hardhat (https://hardhat.org/getting-started/)
-- An Ethereum wallet like MetaMask (https://metamask.io/)
+### MockDai Contract
+- Simplified Dai stablecoin for development.
+- Functions to buy mock Dai with Ether and sell it back.
+- Owner functions to mint and burn tokens.
 
+## Testing and Network Information
 
-## Contributing
-We welcome contributions! Please feel free to submit pull requests, report bugs, or suggest features.
+![img.png](img.png)
 
-## License
-This project is open-sourced under the MIT License. See the [LICENSE](LICENSE) file for more information.
+- Crowdfunding Contract tests cover deployment, campaign management, contributions, withdrawals, and reward claims.
+- LeafToken deployment ensures correct initial settings.
+- MockDai Contract tests the buying and selling of tokens, as well as owner-specific minting and burning.
+- Staking Contract tests cover the staking process, reward calculations, and claim functions.
+
+## Local Development with Hardhat
+
+- Local Hardhat node for Ethereum environment simulation.
+- Contracts are compiled and deployed locally, with addresses outputted to the console.
+- The `scripts/deploy.js` script runs deployment processes and simulates user actions.
+
+## Deployment on Sepolia Testnet
+
+- Configured for Sepolia with Alchemy URL and private keys.
+- Solidity optimizer enabled for efficient contract execution.
+- Contract verification with Etherscan API after deployment.
+
+## Backend Technologies
+
+- Solidity: Programming language for Ethereum smart contracts.
+- Hardhat: Ethereum development environment.
+- Ethers.js: Library for interacting with Ethereum blockchain and smart contracts.
+- Mocha/Chai: Testing framework and assertion library for smart contract testing.
+
+## Frontend Technologies
+
+- Next.js: React framework with server-side rendering and static site generation.
+- Chakra UI: UI library for building responsive and elegant user interfaces.
+- RainbowKit: Wallet connectivity toolkit for integrating Ethereum wallets into the dApp.
+- Wagmi and Viem: Libraries for smart contract interaction.
+
+---
+
+This project aims to contribute to environmental causes through blockchain technology, empowering users to participate in funding campaigns and earn rewards through staking mechanisms.

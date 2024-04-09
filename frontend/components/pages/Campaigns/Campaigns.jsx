@@ -7,7 +7,6 @@ import {useEffect, useState} from "react";
 // Chakra UI
 import {
     Flex,
-    useToast,
     SimpleGrid,
 } from "@chakra-ui/react"
 
@@ -17,22 +16,17 @@ import { useContractRead, useContractReads} from "wagmi";
 import {crowdFundingAddress, crowdFundingAbi} from "@/constants";
 
 
-import {formatEther, parseEther} from "viem";
+import {formatEther} from "viem";
 import CampaignCard from "@/components/CampaignCard/CampaignCard";
 
 
-const FundCampaign = () => {
-    const toast = useToast();
 
-    const [currentComponent, setCurrentComponent] = useState('FundCampaign');
-
+const Campaigns = () => {
 
     const [campaignIds, setCampaignIds] = useState([]);
     const [campaigns, setCampaigns] = useState([]);
 
-    // Préparation de la lecture multiple en utilisant useContractReads
-
-    // Récupération du nombre total de campagnes
+    // Get the total number of campaigns
     const {data: totalCampaigns} = useContractRead({
         address: crowdFundingAddress,
         abi: crowdFundingAbi,
@@ -41,14 +35,12 @@ const FundCampaign = () => {
 
     useEffect(() => {
         if (Number(totalCampaigns) > 0) {
-            // Si totalCampaigns est directement un nombre ou un BigNumber
-            const total = Number(totalCampaigns); // Ou totalCampaigns.toNumber() si c'est un BigNumber
-            console.log(`totalCampaigns: ${totalCampaigns}`)
+            const total = Number(totalCampaigns);
             setCampaignIds(Array.from({length: total}, (_, i) => i));
         }
     }, [totalCampaigns]);
 
-    // Récupération des détails de toutes les campagnes
+    // get the details of all campaigns
     const {data: campaignsData} = useContractReads({
         contracts: campaignIds.map((id) => ({
             address: crowdFundingAddress,
@@ -61,16 +53,15 @@ const FundCampaign = () => {
     useEffect(() => {
         if (campaignsData) {
             setCampaigns(campaignsData);
-            console.log('campaigns : ', campaigns)
         }
 
     }, [campaignsData, campaigns]);
 
-    // Fonction d'aide pour convertir le timestamp en date lisible
+    // Helper function to format the date
     const formatDate = (timestamp) => {
-        // Créer un nouvel objet Date à partir du timestamp (en millisecondes)
+        // Create a new date object from the timestamp
         const date = new Date(timestamp * 1000);
-        // Formatter la date seulement
+        // Format the date to a human-readable format
         return date.toLocaleDateString();
     };
 
@@ -87,7 +78,7 @@ const FundCampaign = () => {
                             creator={campaign.result.creator}
                             image={campaign.result.image}
                             targetAmount={formatEther(campaign.result.targetAmount).toString()}
-                            amountCollected={formatEther(campaign.result.amountCollected.toString())}
+                            amountCollected={!campaign.result.claimedByOwner ? formatEther(campaign.result.amountCollected.toString()): "Funded"}
                             startAt={formatDate(Number(campaign.result.startAt))}
                             endAt={formatDate(Number(campaign.result.endAt))}
                             campaignId={Number(campaign.result.id)}
@@ -101,4 +92,4 @@ const FundCampaign = () => {
     );
 };
 
-export default FundCampaign;
+export default Campaigns;

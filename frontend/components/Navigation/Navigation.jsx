@@ -1,7 +1,5 @@
 'use client'
 
-import Link from "next/link"
-
 import {
     Box,
     Flex,
@@ -19,7 +17,7 @@ import {
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons'
 
 const menuItems = [
-    { name: 'Fund Campaigns', component: 'FundCampaign', active: true },
+    { name: 'Campaigns', component: 'Campaigns', active: true },
     { name: 'Stake Tokens', component: 'StakeToken', active: true },
     { name: 'Buy Tokens', component: 'BuyToken', active: true },
     { name: 'Mint Tokens', component: 'MintToken', active: false },
