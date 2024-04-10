@@ -30,6 +30,7 @@ contract Crowdfunding is ReentrancyGuard {
         bool claimedByOwner;
     }
 
+
     uint256 private constant THIRTY_DAYS = 2592000; // 30 days in seconds
     uint256 public constant RATE = 100; // Rate of LEAF tokens per ETH
 

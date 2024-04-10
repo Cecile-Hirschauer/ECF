@@ -1,5 +1,8 @@
 # EcoGreenFund
 
+[Visitez le site EcoGreenFund](https://egf-frontend.vercel.app/)
+
+
 EcoGreenFund is a decentralized application (dApp) that enables users to fund environmental projects and earn rewards through staking mechanisms. The platform uses smart contracts to manage crowdfunding campaigns, staking pools, and token rewards. Users can create projects, contribute to campaigns, and stake tokens to earn rewards. The LeafToken (LEAF) is used for rewards and project funding, while the MockDai token is used for staking. The dApp is built with Solidity smart contracts, Hardhat development environment, and Next.js frontend framework.
 
 ## Smart Contracts
@@ -58,6 +61,6 @@ EcoGreenFund is a decentralized application (dApp) that enables users to fund en
 - RainbowKit: Wallet connectivity toolkit for integrating Ethereum wallets into the dApp.
 - Wagmi and Viem: Libraries for smart contract interaction.
 
----
 
-This project aims to contribute to environmental causes through blockchain technology, empowering users to participate in funding campaigns and earn rewards through staking mechanisms.
+
+
